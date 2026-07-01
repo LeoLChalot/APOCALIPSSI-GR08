@@ -303,3 +303,104 @@ class ChangePasswordView(APIView):
         Token.objects.filter(user=user).delete()
         token = Token.objects.create(user=user)
         return Response({"detail": "Mot de passe modifié.", "token": token.key})
+
+
+# ---------------------------------------------------------------------------
+# RGPD — SAR (Subject Access Request) — Perturbation J3-bis
+# ---------------------------------------------------------------------------
+
+
+class GDPRExportView(APIView):
+    """Export des données personnelles (Art. 15 accès + Art. 20 portabilité).
+
+    GET /api/accounts/gdpr/export/
+    Renvoie un JSON machine-readable contenant toutes les données personnelles
+    de l'utilisateur : profil, quizzes, questions, réponses.
+    Délai légal : 1 mois max (ici : instantané).
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        responses={200: OpenApiResponse(description="Export JSON RGPD complet")},
+    )
+    def get(self, request):
+        from quizzes.models import Quiz
+
+        user = request.user
+        profile = get_or_create_profile(user)
+
+        quizzes_data = []
+        for quiz in Quiz.objects.filter(user=user).prefetch_related("questions"):
+            questions_data = []
+            for q in quiz.questions.all():
+                questions_data.append({
+                    "index": q.index,
+                    "prompt": q.prompt,
+                    "options": q.options,
+                    "correct_index": q.correct_index,
+                    "selected_index": q.selected_index,
+                })
+            quizzes_data.append({
+                "id": quiz.id,
+                "title": quiz.title,
+                "source_text": quiz.source_text,
+                "score": quiz.score,
+                "created_at": quiz.created_at.isoformat(),
+                "updated_at": quiz.updated_at.isoformat(),
+                "questions": questions_data,
+            })
+
+        export = {
+            "metadata": {
+                "export_format": "JSON",
+                "export_date": __import__("django").utils.timezone.now().isoformat(),
+                "rgpd_articles": ["Art. 15 — Droit d'accès", "Art. 20 — Portabilité"],
+            },
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "date_joined": user.date_joined.isoformat(),
+                "last_login": user.last_login.isoformat() if user.last_login else None,
+                "email_verified": profile.email_verified,
+            },
+            "quizzes": quizzes_data,
+        }
+
+        return Response(export)
+
+
+class GDPREraseView(APIView):
+    """Effacement des données personnelles (Art. 17 — droit à l'oubli).
+
+    DELETE /api/accounts/gdpr/erase/
+    Supprime le compte utilisateur et TOUTES ses données associées
+    (profil, quizzes, questions). Requiert le mot de passe pour confirmer.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=DeleteAccountSerializer,
+        responses={204: OpenApiResponse(description="Données effacées (Art. 17)")},
+    )
+    def delete(self, request):
+        serializer = DeleteAccountSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        user_email = user.email
+        logger.info("RGPD Art.17 — Effacement demandé par %s", user_email)
+
+        Token.objects.filter(user=user).delete()
+        django_logout(request)
+        user.delete()  # CASCADE supprime Profile + Quiz + Questions
+
+        logger.info("RGPD Art.17 — Données effacées pour %s", user_email)
+        return Response(
+            {"detail": "Toutes vos données personnelles ont été supprimées (Art. 17 RGPD)."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
