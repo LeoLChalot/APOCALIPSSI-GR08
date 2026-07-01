@@ -220,28 +220,33 @@ export default function ProfilePage() {
         </form>
       </section>
 
-      {/* Placeholders RGPD / signalement (à compléter pendant la semaine) */}
+      {/* RGPD — Export des données (Art. 15 + 20) */}
       <section className="card bg-slate-50">
         <h2 className="text-lg font-semibold text-slate-900 mb-2">Mes données</h2>
         <p className="text-sm text-slate-500 mb-4">
-          Fonctionnalités à construire pendant la semaine APOCAL'IPSSI.
+          Conformément au RGPD, vous pouvez exporter ou supprimer vos données personnelles.
         </p>
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            disabled
-            title="À implémenter (J3-bis) — droit à la portabilité RGPD"
-            className="btn-secondary opacity-60 cursor-not-allowed"
+            className="btn-secondary"
+            onClick={async () => {
+              try {
+                const { api } = await import('@/api/client');
+                const { data } = await api.get('/accounts/gdpr/export/');
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `edututor-export-rgpd-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              } catch {
+                alert('Erreur lors de l\'export de vos données.');
+              }
+            }}
           >
-            Exporter mes données (bientôt)
-          </button>
-          <button
-            type="button"
-            disabled
-            title="À implémenter (J4) — signalement de contenu"
-            className="btn-secondary opacity-60 cursor-not-allowed"
-          >
-            Signaler un contenu (bientôt)
+            Exporter mes données (JSON)
           </button>
         </div>
       </section>

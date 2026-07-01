@@ -2,6 +2,8 @@ from django.urls import path
 
 from .views import (
     ChangePasswordView,
+    GDPREraseView,
+    GDPRExportView,
     LoginView,
     LogoutView,
     MeView,
@@ -30,4 +32,7 @@ urlpatterns = [
     # Profil (modifier / changer mot de passe / supprimer le compte)
     path("profile/", ProfileView.as_view(), name="profile"),
     path("change-password/", ChangePasswordView.as_view(), name="change-password"),
+    # RGPD — SAR (Subject Access Request)
+    path("gdpr/export/", GDPRExportView.as_view(), name="gdpr-export"),
+    path("gdpr/erase/", GDPREraseView.as_view(), name="gdpr-erase"),
 ]
