@@ -17,6 +17,7 @@ from quizzes.models import Question, Quiz
 from quizzes.serializers import QuizSerializer
 
 from .pdf_utils import PDFError, extract_text_from_pdf
+from .security import PromptInjectionException, PromptSanitizer
 from .serializers import GenerateQuizSerializer
 from .services import get_llm_client
 from .services.base import LLMError
@@ -134,7 +135,14 @@ class GenerateQuizView(APIView):
             except PDFError as exc:
                 return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 2. Appel LLM (Ollama ou Mock)
+        # 2. Validation & Échappement (Sécurité Prompt Injection)
+        try:
+            sanitizer = PromptSanitizer()
+            source_text = sanitizer.sanitize(source_text)
+        except PromptInjectionException as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 3. Appel LLM (Ollama ou Mock)
         try:
             questions_data = get_llm_client().generate_quiz(source_text=source_text, title=title)
         except LLMError as exc:
