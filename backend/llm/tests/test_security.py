@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.test import override_settings
 from rest_framework.test import APIClient
 
-from .security import PromptInjectionException, PromptSanitizer
+from ..security import PromptInjectionException, PromptSanitizer
 
 pytestmark = pytest.mark.django_db
 
