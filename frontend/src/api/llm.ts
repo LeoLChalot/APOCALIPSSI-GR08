@@ -22,11 +22,13 @@ export async function generateQuiz(input: {
   title: string;
   pdf?: File;
   source_text?: string;
+  lang?: 'fr' | 'en';
 }): Promise<Quiz> {
   const form = new FormData();
   form.append('title', input.title);
   if (input.pdf) form.append('pdf', input.pdf);
   if (input.source_text) form.append('source_text', input.source_text);
+  if (input.lang) form.append('lang', input.lang);
 
   const { data } = await api.post<Quiz>('/llm/generate-quiz/', form, {
     headers: { 'Content-Type': 'multipart/form-data' },

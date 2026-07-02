@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { listQuizzes, type QuizSummary } from '@/api/quizzes';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function HistoryPage() {
+  const { t } = useTranslation();
+  const { locale } = useLanguage();
   const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -10,35 +14,35 @@ export default function HistoryPage() {
   useEffect(() => {
     listQuizzes()
       .then((res) => setQuizzes(res.results))
-      .catch(() => setError("Impossible de charger l'historique."))
+      .catch(() => setError(t('history.loadError')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
-  if (loading) return <p className="text-slate-500">Chargement…</p>;
+  if (loading) return <p className="text-slate-500">{t('common.loading')}</p>;
   if (error) return <p className="text-rose-600">{error}</p>;
 
   return (
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Mon historique</h1>
+          <h1 className="text-3xl font-bold text-slate-900">{t('history.title')}</h1>
           <p className="text-slate-500 text-sm">
             {quizzes.length === 0
-              ? "Aucun quiz pour l'instant — créez votre premier !"
-              : `${quizzes.length} quiz au compteur.`}
+              ? t('history.emptyLead')
+              : t('history.countLead', { count: quizzes.length })}
           </p>
         </div>
         <Link to="/upload" className="btn-primary">
-          + Nouveau quiz
+          {t('history.newQuiz')}
         </Link>
       </div>
 
       {quizzes.length === 0 ? (
         <div className="card text-center py-12">
           <div className="text-5xl mb-4">📚</div>
-          <p className="text-slate-600 mb-4">Pas encore de quiz dans votre historique.</p>
+          <p className="text-slate-600 mb-4">{t('history.emptyBody')}</p>
           <Link to="/upload" className="btn-primary">
-            Créer mon premier quiz
+            {t('history.emptyCta')}
           </Link>
         </div>
       ) : (
@@ -51,7 +55,7 @@ export default function HistoryPage() {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="font-mono text-xs text-slate-500">
-                  #{q.id} · {new Date(q.created_at).toLocaleDateString('fr-FR')}
+                  #{q.id} · {new Date(q.created_at).toLocaleDateString(locale)}
                 </span>
                 {q.score !== null && (
                   <span
@@ -68,12 +72,14 @@ export default function HistoryPage() {
                 )}
                 {q.score === null && (
                   <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-xs font-mono">
-                    pas encore passé
+                    {t('history.notTaken')}
                   </span>
                 )}
               </div>
               <h3 className="font-semibold text-slate-900 mb-1">{q.title}</h3>
-              <p className="text-sm text-slate-500">{q.nb_questions} questions</p>
+              <p className="text-sm text-slate-500">
+                {t('history.questions', { count: q.nb_questions })}
+              </p>
             </Link>
           ))}
         </div>

@@ -5,13 +5,26 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
+    color-scheme: light;
   }
   body {
     @apply bg-slate-50 text-slate-700 antialiased;
   }
+  html.dark {
+    color-scheme: dark;
+  }
   code,
   pre {
     font-family: 'JetBrains Mono', monospace;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 3px solid #6366f1;
+    outline-offset: 2px;
   }
 
   /*
@@ -54,6 +67,22 @@
     background-color: #334155;
   }
 
+  .dark .bg-amber-50 {
+    background-color: #3a2d12;
+  }
+
+  .dark .text-amber-900 {
+    color: #fde68a;
+  }
+
+  .dark .border-amber-200 {
+    border-color: #92400e;
+  }
+
+  .dark .border-amber-400 {
+    border-color: #d97706;
+  }
+
   /* Bordures neutres */
   .dark .border-slate-200 {
     border-color: #334155;
@@ -78,6 +107,9 @@
   }
   .input {
     @apply w-full px-3 py-2 border border-slate-300 rounded-md bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent;
+  }
+  .select-input {
+    @apply input pr-8;
   }
   .card {
     @apply bg-white border border-slate-200 rounded-lg p-6 shadow-sm;

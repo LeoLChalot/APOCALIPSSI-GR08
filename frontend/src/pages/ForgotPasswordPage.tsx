@@ -5,12 +5,15 @@
  * existe ou non en base. C'est une protection contre l'énumération de comptes :
  * un attaquant ne doit pas pouvoir deviner quelles adresses sont enregistrées.
  */
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { requestPasswordReset } from '@/api/auth';
 import { getApiErrorMessage } from '@/api/errors';
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
+  const emailId = useId();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +28,7 @@ export default function ForgotPasswordPage() {
       const detail = await requestPasswordReset(email);
       setMessage(detail);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Impossible d’envoyer le lien.'));
+      setError(getApiErrorMessage(err, t('forgotPassword.sendError')));
     } finally {
       setLoading(false);
     }
@@ -34,33 +37,39 @@ export default function ForgotPasswordPage() {
   return (
     <div className="max-w-md mx-auto">
       <div className="card">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Mot de passe oublié</h1>
-        <p className="text-sm text-slate-500 mb-6">
-          Saisissez votre email : si un compte existe, vous recevrez un lien pour choisir un nouveau
-          mot de passe.
-        </p>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">{t('forgotPassword.title')}</h1>
+        <p className="text-sm text-slate-500 mb-6">{t('forgotPassword.intro')}</p>
 
         {message ? (
-          <div className="mb-4 p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded">
+          <div
+            role="status"
+            className="mb-4 p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded"
+          >
             {message}
             <div className="mt-3">
               <Link to="/login" className="text-indigo-600 hover:underline">
-                ← Retour à la connexion
+                ← {t('common.backToLogin')}
               </Link>
             </div>
           </div>
         ) : (
           <>
             {error && (
-              <div className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+              <div
+                role="alert"
+                className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+              >
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                <label htmlFor={emailId} className="block text-sm font-medium text-slate-700 mb-1">
+                  {t('common.email')}
+                </label>
                 <input
+                  id={emailId}
                   type="email"
                   required
                   autoFocus
@@ -72,13 +81,13 @@ export default function ForgotPasswordPage() {
               </div>
 
               <button type="submit" disabled={loading} className="btn-primary w-full">
-                {loading ? 'Envoi…' : 'Envoyer le lien'}
+                {loading ? t('forgotPassword.sending') : t('forgotPassword.send')}
               </button>
             </form>
 
             <p className="text-sm text-slate-500 mt-4 text-center">
               <Link to="/login" className="text-indigo-600 hover:underline">
-                ← Retour à la connexion
+                ← {t('common.backToLogin')}
               </Link>
             </p>
           </>

@@ -1,30 +1,17 @@
-/**
- * Page "Mon profil".
- *
- * Trois zones :
- *   1. Mes informations  : modifier prénom / nom / email
- *   2. Mot de passe       : changer son mot de passe (ancien requis)
- *   3. Zone de danger     : supprimer définitivement son compte
- *
- * [Note pédagogique] Changer son email = re-valider (le bandeau « email non
- * confirmé » réapparaîtra). La suppression est une action DESTRUCTIVE : on la
- * protège par une confirmation au mot de passe.
- *
- * [TODO J3-bis RGPD] Ajouter ici un bouton « Exporter mes données » (droit à la
- *   portabilité) — placeholder présent plus bas, à implémenter pendant la semaine.
- * [TODO J4] Ajouter un bouton « Signaler un contenu / un quiz » — placeholder.
- */
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import { changePassword, deleteAccount, updateProfile } from '@/api/auth';
 import { getApiErrorMessage } from '@/api/errors';
+import { getProfileCopy } from '@/content/profileAdminCopy';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ProfilePage() {
   const { user, refresh } = useAuth();
+  const { language } = useLanguage();
+  const copy = getProfileCopy(language);
   const navigate = useNavigate();
 
-  // --- Zone 1 : informations ---
   const [firstName, setFirstName] = useState(user?.first_name ?? '');
   const [lastName, setLastName] = useState(user?.last_name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
@@ -32,7 +19,6 @@ export default function ProfilePage() {
   const [infoErr, setInfoErr] = useState<string | null>(null);
   const [infoLoading, setInfoLoading] = useState(false);
 
-  // --- Zone 2 : mot de passe ---
   const [oldPwd, setOldPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [confirmPwd, setConfirmPwd] = useState('');
@@ -40,7 +26,6 @@ export default function ProfilePage() {
   const [pwdErr, setPwdErr] = useState<string | null>(null);
   const [pwdLoading, setPwdLoading] = useState(false);
 
-  // --- Zone 3 : suppression ---
   const [delPwd, setDelPwd] = useState('');
   const [delConfirm, setDelConfirm] = useState(false);
   const [delErr, setDelErr] = useState<string | null>(null);
@@ -54,9 +39,17 @@ export default function ProfilePage() {
     try {
       await updateProfile({ first_name: firstName, last_name: lastName, email });
       await refresh();
-      setInfoMsg('Profil mis à jour.');
+      setInfoMsg(copy.info.success);
     } catch (err) {
-      setInfoErr(getApiErrorMessage(err, 'Mise à jour impossible.'));
+      setInfoErr(
+        getApiErrorMessage(err, {
+          fallback: copy.info.error,
+          translations: {
+            'Cet email est deja utilise par un autre compte.': copy.info.emailTaken,
+            'Cet email est déjà utilisé par un autre compte.': copy.info.emailTaken,
+          },
+        }),
+      );
     } finally {
       setInfoLoading(false);
     }
@@ -67,18 +60,25 @@ export default function ProfilePage() {
     setPwdMsg(null);
     setPwdErr(null);
     if (newPwd !== confirmPwd) {
-      setPwdErr('Les deux nouveaux mots de passe ne correspondent pas.');
+      setPwdErr(copy.password.mismatch);
       return;
     }
     setPwdLoading(true);
     try {
-      const detail = await changePassword(oldPwd, newPwd);
-      setPwdMsg(detail);
+      await changePassword(oldPwd, newPwd);
+      setPwdMsg(copy.password.success);
       setOldPwd('');
       setNewPwd('');
       setConfirmPwd('');
     } catch (err) {
-      setPwdErr(getApiErrorMessage(err, 'Changement de mot de passe impossible.'));
+      setPwdErr(
+        getApiErrorMessage(err, {
+          fallback: copy.password.error,
+          translations: {
+            'Mot de passe actuel incorrect.': copy.password.currentInvalid,
+          },
+        }),
+      );
     } finally {
       setPwdLoading(false);
     }
@@ -90,35 +90,51 @@ export default function ProfilePage() {
     setDelLoading(true);
     try {
       await deleteAccount(delPwd);
-      await refresh(); // token effacé -> l'utilisateur passe à null
+      await refresh();
       navigate('/', { replace: true });
     } catch (err) {
-      setDelErr(getApiErrorMessage(err, 'Suppression impossible.'));
+      setDelErr(
+        getApiErrorMessage(err, {
+          fallback: copy.danger.deleteError,
+          translations: {
+            'Mot de passe incorrect.': copy.danger.passwordInvalid,
+          },
+        }),
+      );
       setDelLoading(false);
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Mon profil</h1>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{copy.title}</h1>
 
-      {/* Zone 1 : informations */}
       <section className="card">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Mes informations</h2>
-        {infoMsg && (
-          <div className="mb-4 p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+          {copy.info.title}
+        </h2>
+        {infoMsg ? (
+          <div
+            role="status"
+            className="mb-4 p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded"
+          >
             {infoMsg}
           </div>
-        )}
-        {infoErr && (
-          <div className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+        ) : null}
+        {infoErr ? (
+          <div
+            role="alert"
+            className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+          >
             {infoErr}
           </div>
-        )}
+        ) : null}
         <form onSubmit={handleInfo} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Prénom</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+                {copy.info.firstName}
+              </label>
               <input
                 type="text"
                 value={firstName}
@@ -127,7 +143,9 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nom</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+                {copy.info.lastName}
+              </label>
               <input
                 type="text"
                 value={lastName}
@@ -137,11 +155,11 @@ export default function ProfilePage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
               Email{' '}
-              {user && !user.email_verified && (
-                <span className="text-amber-600 font-normal">(non confirmé)</span>
-              )}
+              {user && !user.email_verified ? (
+                <span className="text-amber-600 font-normal">({copy.info.emailUnverified})</span>
+              ) : null}
             </label>
             <input
               type="email"
@@ -149,33 +167,38 @@ export default function ProfilePage() {
               onChange={(e) => setEmail(e.target.value)}
               className="input"
             />
-            <p className="text-xs text-slate-500 mt-1">
-              Changer d'email nécessitera une nouvelle confirmation par mail.
-            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{copy.info.emailHint}</p>
           </div>
           <button type="submit" disabled={infoLoading} className="btn-primary">
-            {infoLoading ? 'Enregistrement…' : 'Enregistrer'}
+            {infoLoading ? copy.info.saving : copy.info.save}
           </button>
         </form>
       </section>
 
-      {/* Zone 2 : mot de passe */}
       <section className="card">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Changer mon mot de passe</h2>
-        {pwdMsg && (
-          <div className="mb-4 p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+          {copy.password.title}
+        </h2>
+        {pwdMsg ? (
+          <div
+            role="status"
+            className="mb-4 p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded"
+          >
             {pwdMsg}
           </div>
-        )}
-        {pwdErr && (
-          <div className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+        ) : null}
+        {pwdErr ? (
+          <div
+            role="alert"
+            className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+          >
             {pwdErr}
           </div>
-        )}
+        ) : null}
         <form onSubmit={handlePassword} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Mot de passe actuel
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+              {copy.password.current}
             </label>
             <input
               type="password"
@@ -186,10 +209,10 @@ export default function ProfilePage() {
               className="input"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Nouveau mot de passe
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+                {copy.password.next}
               </label>
               <input
                 type="password"
@@ -202,7 +225,9 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Confirmer</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+                {copy.password.confirm}
+              </label>
               <input
                 type="password"
                 required
@@ -215,17 +240,16 @@ export default function ProfilePage() {
             </div>
           </div>
           <button type="submit" disabled={pwdLoading} className="btn-primary">
-            {pwdLoading ? 'Modification…' : 'Modifier le mot de passe'}
+            {pwdLoading ? copy.password.submitting : copy.password.submit}
           </button>
         </form>
       </section>
 
-      {/* RGPD — Export des données (Art. 15 + 20) */}
-      <section className="card bg-slate-50">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">Mes données</h2>
-        <p className="text-sm text-slate-500 mb-4">
-          Conformément au RGPD, vous pouvez exporter ou supprimer vos données personnelles.
-        </p>
+      <section className="card bg-slate-50 dark:bg-slate-800/40">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          {copy.data.title}
+        </h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{copy.data.intro}</p>
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
@@ -234,39 +258,40 @@ export default function ProfilePage() {
               try {
                 const { api } = await import('@/api/client');
                 const { data } = await api.get('/accounts/gdpr/export/');
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const blob = new Blob([JSON.stringify(data, null, 2)], {
+                  type: 'application/json',
+                });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `edututor-export-rgpd-${new Date().toISOString().slice(0, 10)}.json`;
+                a.download = `edututor-rgpd-export-${new Date().toISOString().slice(0, 10)}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
               } catch {
-                alert('Erreur lors de l\'export de vos données.');
+                window.alert(copy.data.exportError);
               }
             }}
           >
-            Exporter mes données (JSON)
+            {copy.data.exportButton}
           </button>
         </div>
       </section>
 
-      {/* Zone 3 : danger */}
       <section className="card border-2 border-rose-200">
-        <h2 className="text-lg font-semibold text-rose-700 mb-2">Zone de danger</h2>
-        <p className="text-sm text-slate-600 mb-4">
-          La suppression de votre compte est <strong>définitive</strong> et efface toutes vos
-          données (quiz, historique). Cette action est irréversible.
-        </p>
-        {delErr && (
-          <div className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+        <h2 className="text-lg font-semibold text-rose-700 mb-2">{copy.danger.title}</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{copy.danger.intro}</p>
+        {delErr ? (
+          <div
+            role="alert"
+            className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+          >
             {delErr}
           </div>
-        )}
+        ) : null}
         <form onSubmit={handleDelete} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Confirmez avec votre mot de passe
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+              {copy.danger.passwordLabel}
             </label>
             <input
               type="password"
@@ -277,20 +302,20 @@ export default function ProfilePage() {
               className="input"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
             <input
               type="checkbox"
               checked={delConfirm}
               onChange={(e) => setDelConfirm(e.target.checked)}
             />
-            Je comprends que cette action est irréversible.
+            {copy.danger.confirmLabel}
           </label>
           <button
             type="submit"
             disabled={delLoading || !delConfirm}
             className="px-4 py-2 rounded bg-rose-600 text-white font-medium hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {delLoading ? 'Suppression…' : 'Supprimer définitivement mon compte'}
+            {delLoading ? copy.danger.submitting : copy.danger.submit}
           </button>
         </form>
       </section>

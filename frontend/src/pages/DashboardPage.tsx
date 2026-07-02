@@ -8,8 +8,10 @@
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getStats, type Stats } from '@/api/quizzes';
 import { getApiErrorMessage } from '@/api/errors';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 /** Couleur d'une barre selon le score (vert / ambre / rouge). */
 function barColor(score: number): string {
@@ -29,6 +31,8 @@ function KpiCard({ label, value, hint }: { label: string; value: string; hint?: 
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
+  const { locale } = useLanguage();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,11 +40,11 @@ export default function DashboardPage() {
   useEffect(() => {
     getStats()
       .then(setStats)
-      .catch((err) => setError(getApiErrorMessage(err, 'Impossible de charger les statistiques.')))
+      .catch((err) => setError(getApiErrorMessage(err, t('dashboard.loadError'))))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
-  if (loading) return <p className="text-slate-500">Chargement…</p>;
+  if (loading) return <p className="text-slate-500">{t('common.loading')}</p>;
   if (error) return <p className="text-rose-600">{error}</p>;
   if (!stats) return null;
 
@@ -50,22 +54,20 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Tableau de bord</h1>
-          <p className="text-slate-500 text-sm">Votre progression sur EduTutor IA.</p>
+          <h1 className="text-3xl font-bold text-slate-900">{t('dashboard.title')}</h1>
+          <p className="text-slate-500 text-sm">{t('dashboard.subtitle')}</p>
         </div>
         <Link to="/upload" className="btn-primary">
-          + Nouveau quiz
+          {t('dashboard.newQuiz')}
         </Link>
       </div>
 
       {!hasData ? (
         <div className="card text-center py-12">
           <div className="text-5xl mb-4">📊</div>
-          <p className="text-slate-600 mb-4">
-            Passez votre premier quiz pour voir vos statistiques apparaître ici.
-          </p>
+          <p className="text-slate-600 mb-4">{t('dashboard.emptyBody')}</p>
           <Link to="/upload" className="btn-primary">
-            Créer un quiz
+            {t('dashboard.emptyCta')}
           </Link>
         </div>
       ) : (
@@ -73,28 +75,33 @@ export default function DashboardPage() {
           {/* KPIs */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <KpiCard
-              label="Quiz passés"
+              label={t('dashboard.kpiTaken')}
               value={String(stats.quizzes_taken)}
-              hint={`${stats.total_quizzes} créés au total`}
+              hint={t('dashboard.kpiTotalHint', { count: stats.total_quizzes })}
             />
             <KpiCard
-              label="Score moyen"
+              label={t('dashboard.kpiAverage')}
               value={stats.average_score !== null ? `${stats.average_score}/10` : '—'}
             />
             <KpiCard
-              label="Meilleur score"
+              label={t('dashboard.kpiBest')}
               value={stats.best_score !== null ? `${stats.best_score}/10` : '—'}
             />
             <KpiCard
-              label="Précision"
+              label={t('dashboard.kpiAccuracy')}
               value={stats.accuracy !== null ? `${stats.accuracy}%` : '—'}
-              hint={`${stats.questions_correct}/${stats.questions_answered} bonnes réponses`}
+              hint={t('dashboard.kpiAccuracyHint', {
+                correct: stats.questions_correct,
+                answered: stats.questions_answered,
+              })}
             />
           </div>
 
           {/* Graphique de progression (barres maison) */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Progression des scores</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">
+              {t('dashboard.scoresTitle')}
+            </h2>
             <div className="flex items-end gap-2 h-48 border-b border-l border-slate-200 pl-2 pb-px">
               {stats.history.map((p) => (
                 <div
@@ -105,23 +112,20 @@ export default function DashboardPage() {
                   <div
                     className={`w-full rounded-t ${barColor(p.score)} transition-all`}
                     style={{ height: `${(p.score / 10) * 100}%` }}
-                    title={`${p.title} — ${p.score}/10 (${new Date(p.created_at).toLocaleDateString('fr-FR')})`}
+                    title={`${p.title} — ${p.score}/10 (${new Date(p.created_at).toLocaleDateString(locale)})`}
                   />
                 </div>
               ))}
             </div>
-            <p className="text-xs text-slate-400 mt-2">
-              Chaque barre = un quiz passé, dans l'ordre chronologique. Survolez pour voir le
-              détail.
-            </p>
+            <p className="text-xs text-slate-400 mt-2">{t('dashboard.scoresHint')}</p>
           </div>
 
           <div className="flex gap-3">
             <Link to="/review" className="btn-secondary">
-              📕 Réviser mes erreurs
+              📕 {t('dashboard.reviewCta')}
             </Link>
             <Link to="/history" className="btn-secondary">
-              📚 Voir l'historique
+              📚 {t('dashboard.historyCta')}
             </Link>
           </div>
         </>

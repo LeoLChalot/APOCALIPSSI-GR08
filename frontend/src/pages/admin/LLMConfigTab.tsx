@@ -1,18 +1,12 @@
-/**
- * Onglet « Config LLM » de l'admin.
- *
- * Permet de choisir le fournisseur LLM, son modèle et sa clé API — avec une AIDE
- * spécifique à chaque fournisseur (comment obtenir une clé, modèle conseillé,
- * gratuit/payant). La config est enregistrée EN BASE et prioritaire sur le .env.
- *
- * Sécurité : les clés ne sont jamais réaffichées en clair ; on indique seulement
- * si une clé est « déjà définie ». Laisser le champ vide = ne pas changer.
- */
 import { useEffect, useState, type FormEvent } from 'react';
-import { getLLMConfig, updateLLMConfig, type LLMConfig, type ProviderInfo } from '@/api/admin';
+import { getLLMConfig, type LLMConfig, type ProviderInfo, updateLLMConfig } from '@/api/admin';
 import { getApiErrorMessage } from '@/api/errors';
+import { getAdminCopy, getProviderCopy } from '@/content/profileAdminCopy';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function LLMConfigTab() {
+  const { language } = useLanguage();
+  const copy = getAdminCopy(language);
   const [cfg, setCfg] = useState<LLMConfig | null>(null);
   const [backend, setBackend] = useState('');
   const [model, setModel] = useState('');
@@ -23,26 +17,38 @@ export default function LLMConfigTab() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const apply = (c: LLMConfig) => {
-    setCfg(c);
-    setBackend(c.backend || c.effective.backend || 'ollama');
-    setModel(c.model);
-    setOllamaHost(c.ollama_host);
-    setTimeoutVal(c.timeout !== null ? String(c.timeout) : '');
+  const apply = (next: LLMConfig) => {
+    setCfg(next);
+    setBackend(next.backend || next.effective.backend || 'ollama');
+    setModel(next.model);
+    setOllamaHost(next.ollama_host);
+    setTimeoutVal(next.timeout !== null ? String(next.timeout) : '');
     setKeyInput('');
   };
 
   useEffect(() => {
     getLLMConfig()
       .then(apply)
-      .catch((err) => setError(getApiErrorMessage(err, 'Chargement impossible.')));
-  }, []);
+      .catch((err) => setError(getApiErrorMessage(err, copy.loadError)));
+  }, [copy.loadError]);
 
   if (error && !cfg) return <p className="text-rose-600">{error}</p>;
-  if (!cfg) return <p className="text-slate-500">Chargement…</p>;
+  if (!cfg) return <p className="text-slate-500 dark:text-slate-400">{copy.loading}</p>;
 
-  const provider: ProviderInfo | undefined = cfg.providers.find((p) => p.key === backend);
+  const provider = cfg.providers.find((item) => item.key === backend);
+  const providerText = provider
+    ? getProviderCopy(language, provider.key, { label: provider.label, help: provider.help })
+    : undefined;
   const keyAlreadySet = cfg.api_keys_set[backend];
+
+  const getEffectiveProviderLabel = () => {
+    const effective = cfg.providers.find((item) => item.key === cfg.effective.backend);
+    if (!effective) return cfg.effective.backend;
+    return getProviderCopy(language, effective.key, {
+      label: effective.label,
+      help: effective.help,
+    }).label;
+  };
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
@@ -58,9 +64,9 @@ export default function LLMConfigTab() {
       if (backend === 'ollama') patch.ollama_host = ollamaHost;
       if (keyInput) patch.api_keys = { [backend]: keyInput };
       apply(await updateLLMConfig(patch));
-      setMessage('Configuration LLM enregistrée. Elle est active immédiatement.');
+      setMessage(copy.llm.saveSuccess);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Enregistrement impossible.'));
+      setError(getApiErrorMessage(err, copy.llm.saveError));
     } finally {
       setLoading(false);
     }
@@ -72,88 +78,97 @@ export default function LLMConfigTab() {
     setError(null);
     try {
       apply(await updateLLMConfig({ api_keys: { [backend]: '' } }));
-      setMessage('Clé supprimée.');
+      setMessage(copy.llm.clearKeySuccess);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Suppression impossible.'));
+      setError(getApiErrorMessage(err, copy.llm.clearKeyError));
     } finally {
       setLoading(false);
     }
   };
 
+  const renderProviderOptionLabel = (item: ProviderInfo) => {
+    const translated = getProviderCopy(language, item.key, { label: item.label, help: item.help });
+    const suffix = item.paid ? copy.llm.paid : item.cloud ? 'Cloud' : copy.llm.localFree;
+    return `${translated.label} - ${suffix}`;
+  };
+
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Config effective (ce qui est réellement utilisé) */}
-      <div className="card bg-slate-50">
-        <div className="text-sm text-slate-500">Configuration active (effective)</div>
-        <div className="mt-1 font-mono text-sm text-slate-900">
-          {cfg.effective.backend} · {cfg.effective.model || '(modèle par défaut)'}
+      <div className="card bg-slate-50 dark:bg-slate-800/40">
+        <div className="text-sm text-slate-500 dark:text-slate-400">{copy.llm.activeConfig}</div>
+        <div className="mt-1 font-mono text-sm text-slate-900 dark:text-white">
+          {getEffectiveProviderLabel()} · {cfg.effective.model || copy.llm.effectiveFallback}
         </div>
-        <p className="text-xs text-slate-400 mt-1">
-          « La base l'emporte si renseignée, sinon repli sur le .env. »
-        </p>
+        <p className="text-xs text-slate-400 mt-1">{copy.llm.effectiveHint}</p>
       </div>
 
-      {message && (
-        <div className="p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded">
+      {message ? (
+        <div
+          role="status"
+          className="p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded"
+        >
           {message}
         </div>
-      )}
-      {error && (
-        <div className="p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+      ) : null}
+      {error ? (
+        <div
+          role="alert"
+          className="p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+        >
           {error}
         </div>
-      )}
+      ) : null}
 
       <form onSubmit={save} className="card space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Fournisseur</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+            {copy.llm.provider}
+          </label>
           <select value={backend} onChange={(e) => setBackend(e.target.value)} className="input">
-            {cfg.providers.map((p) => (
-              <option key={p.key} value={p.key}>
-                {p.label}
-                {p.paid ? ' — payant' : p.cloud ? ' — cloud' : ' — local/gratuit'}
+            {cfg.providers.map((item) => (
+              <option key={item.key} value={item.key}>
+                {renderProviderOptionLabel(item)}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Aide spécifique au fournisseur sélectionné */}
-        {provider && (
-          <div className="p-3 bg-indigo-50 border-l-4 border-indigo-400 rounded text-sm text-indigo-900 space-y-1">
+        {provider && providerText ? (
+          <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-400 rounded text-sm text-indigo-900 dark:text-indigo-200 space-y-1">
             <div className="flex flex-wrap gap-2">
-              {provider.cloud && (
+              {provider.cloud ? (
                 <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-xs">
-                  ☁️ Cloud — données hors serveur (RGPD)
+                  {copy.llm.cloud}
                 </span>
-              )}
-              {provider.paid && (
+              ) : null}
+              {provider.paid ? (
                 <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-xs">
-                  💳 Payant (crédit requis)
+                  {copy.llm.paid}
                 </span>
-              )}
-              {!provider.cloud && (
+              ) : null}
+              {!provider.cloud ? (
                 <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs">
-                  🔒 Local / gratuit
+                  {copy.llm.localFree}
                 </span>
-              )}
+              ) : null}
             </div>
-            <p>{provider.help}</p>
-            {provider.keys_url && (
+            <p>{providerText.help}</p>
+            {provider.keys_url ? (
               <a
                 href={provider.keys_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:no-underline font-medium"
               >
-                Obtenir une clé API →
+                {copy.llm.getApiKey}
               </a>
-            )}
+            ) : null}
           </div>
-        )}
+        ) : null}
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Modèle <span className="text-slate-400 font-normal">(vide = défaut du .env)</span>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+            {copy.llm.model} <span className="text-slate-400 font-normal">{copy.llm.modelHint}</span>
           </label>
           <input
             type="text"
@@ -164,10 +179,11 @@ export default function LLMConfigTab() {
           />
         </div>
 
-        {backend === 'ollama' && (
+        {backend === 'ollama' ? (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              URL Ollama <span className="text-slate-400 font-normal">(vide = OLLAMA_HOST)</span>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+              {copy.llm.ollamaHost}{' '}
+              <span className="text-slate-400 font-normal">{copy.llm.ollamaHint}</span>
             </label>
             <input
               type="text"
@@ -177,40 +193,40 @@ export default function LLMConfigTab() {
               className="input font-mono"
             />
           </div>
-        )}
+        ) : null}
 
-        {provider?.needs_key && (
+        {provider?.needs_key ? (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Clé API
-              {keyAlreadySet && (
-                <span className="text-emerald-600 font-normal"> — déjà définie (•••)</span>
-              )}
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+              {copy.llm.apiKey}
+              {keyAlreadySet ? (
+                <span className="text-emerald-600 font-normal"> {copy.llm.apiKeyAlreadySet}</span>
+              ) : null}
             </label>
             <input
               type="password"
               value={keyInput}
               onChange={(e) => setKeyInput(e.target.value)}
-              placeholder={keyAlreadySet ? 'Laisser vide pour ne pas changer' : 'Saisir la clé API'}
+              placeholder={keyAlreadySet ? copy.llm.apiKeyPlaceholderSet : copy.llm.apiKeyPlaceholderEmpty}
               className="input font-mono"
               autoComplete="off"
             />
-            {keyAlreadySet && (
+            {keyAlreadySet ? (
               <button
                 type="button"
                 onClick={clearKey}
                 disabled={loading}
                 className="text-xs text-rose-600 hover:underline mt-1"
               >
-                Supprimer la clé enregistrée
+                {copy.llm.clearStoredKey}
               </button>
-            )}
+            ) : null}
           </div>
-        )}
+        ) : null}
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Timeout (s) <span className="text-slate-400 font-normal">(vide = défaut)</span>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+            {copy.llm.timeout} <span className="text-slate-400 font-normal">{copy.llm.timeoutHint}</span>
           </label>
           <input
             type="number"
@@ -222,16 +238,12 @@ export default function LLMConfigTab() {
         </div>
 
         <button type="submit" disabled={loading} className="btn-primary">
-          {loading ? 'Enregistrement…' : 'Enregistrer la config LLM'}
+          {loading ? copy.llm.saving : copy.llm.save}
         </button>
       </form>
 
-      {/* Avertissement sécurité (parti pris pédagogique du kit) */}
-      <div className="p-3 bg-amber-50 border-l-4 border-amber-400 rounded text-xs text-amber-900">
-        ⚠️ <strong>Sécurité</strong> : les clés API sont stockées <em>en base</em>
-        (jamais réaffichées en clair). C'est acceptable pour ce kit pédagogique, mais en{' '}
-        <strong>production</strong> il faudrait les chiffrer (ex. Fernet) ou utiliser un
-        gestionnaire de secrets.
+      <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 rounded text-xs text-amber-900 dark:text-amber-200">
+        <strong>{copy.llm.securityTitle}</strong> : {copy.llm.securityBody}
       </div>
     </div>
   );

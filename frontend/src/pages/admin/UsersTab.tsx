@@ -1,65 +1,86 @@
-/** Onglet « Utilisateurs » de l'admin : liste, recherche et actions. */
 import { useEffect, useState } from 'react';
 import {
-  listAdminUsers,
-  updateAdminUser,
   deleteAdminUser,
+  listAdminUsers,
   resendUserVerification,
   type AdminUser,
+  updateAdminUser,
 } from '@/api/admin';
 import { getApiErrorMessage } from '@/api/errors';
+import { getAdminCopy } from '@/content/profileAdminCopy';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function UsersTab() {
+  const { language } = useLanguage();
+  const copy = getAdminCopy(language);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [q, setQ] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const actionTranslations = {
+    'Vous ne pouvez pas modifier/supprimer votre propre compte ici.':
+      copy.users.ownAccountBlocked,
+    'Action interdite sur un super-administrateur.': copy.users.superuserBlocked,
+  };
+
   const load = (query = '') => {
     setLoading(true);
+    setError(null);
     listAdminUsers(query)
       .then(setUsers)
-      .catch((err) => setError(getApiErrorMessage(err, 'Chargement impossible.')))
+      .catch((err) => setError(getApiErrorMessage(err, copy.loadError)))
       .finally(() => setLoading(false));
   };
 
-  // Recherche : recharge 300 ms après la dernière frappe (debounce simple).
   useEffect(() => {
-    const t = setTimeout(() => load(q), 300);
-    return () => clearTimeout(t);
-  }, [q]);
+    const timer = setTimeout(() => load(q), 300);
+    return () => clearTimeout(timer);
+  }, [q, copy.loadError]);
 
-  const patch = async (u: AdminUser, change: Parameters<typeof updateAdminUser>[1]) => {
+  const patch = async (user: AdminUser, change: Parameters<typeof updateAdminUser>[1]) => {
     setMessage(null);
     setError(null);
     try {
-      const updated = await updateAdminUser(u.id, change);
-      setUsers((list) => list.map((x) => (x.id === u.id ? updated : x)));
+      const updated = await updateAdminUser(user.id, change);
+      setUsers((list) => list.map((item) => (item.id === user.id ? updated : item)));
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Action impossible.'));
+      setError(
+        getApiErrorMessage(err, {
+          fallback: copy.users.actionError,
+          translations: actionTranslations,
+        }),
+      );
     }
   };
 
-  const remove = async (u: AdminUser) => {
-    if (!window.confirm(`Supprimer définitivement le compte ${u.email} ?`)) return;
+  const remove = async (user: AdminUser) => {
+    const confirmMessage = copy.users.confirmDelete.replace('{{email}}', user.email);
+    if (!window.confirm(confirmMessage)) return;
     setMessage(null);
     setError(null);
     try {
-      await deleteAdminUser(u.id);
-      setUsers((list) => list.filter((x) => x.id !== u.id));
+      await deleteAdminUser(user.id);
+      setUsers((list) => list.filter((item) => item.id !== user.id));
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Suppression impossible.'));
+      setError(
+        getApiErrorMessage(err, {
+          fallback: copy.users.deleteError,
+          translations: actionTranslations,
+        }),
+      );
     }
   };
 
-  const resend = async (u: AdminUser) => {
+  const resend = async (user: AdminUser) => {
     setMessage(null);
     setError(null);
     try {
-      setMessage(await resendUserVerification(u.id));
+      await resendUserVerification(user.id);
+      setMessage(copy.users.resendSuccess.replace('{{email}}', user.email));
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Envoi impossible.'));
+      setError(getApiErrorMessage(err, copy.users.resendError));
     }
   };
 
@@ -69,111 +90,119 @@ export default function UsersTab() {
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Rechercher par email ou nom…"
+        placeholder={copy.users.searchPlaceholder}
         className="input max-w-sm"
       />
 
-      {message && (
-        <div className="p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded">
+      {message ? (
+        <div
+          role="status"
+          className="p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded"
+        >
           {message}
         </div>
-      )}
-      {error && (
-        <div className="p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+      ) : null}
+      {error ? (
+        <div
+          role="alert"
+          className="p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+        >
           {error}
         </div>
-      )}
+      ) : null}
 
       {loading ? (
-        <p className="text-slate-500">Chargement…</p>
+        <p className="text-slate-500 dark:text-slate-400">{copy.loading}</p>
       ) : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-500 text-left">
+            <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-left">
               <tr>
-                <th className="px-3 py-2">Email</th>
-                <th className="px-3 py-2">Nom</th>
-                <th className="px-3 py-2">Quiz</th>
-                <th className="px-3 py-2">Email vérifié</th>
-                <th className="px-3 py-2">Statut</th>
-                <th className="px-3 py-2">Rôle</th>
-                <th className="px-3 py-2">Actions</th>
+                <th className="px-3 py-2">{copy.users.headers.email}</th>
+                <th className="px-3 py-2">{copy.users.headers.name}</th>
+                <th className="px-3 py-2">{copy.users.headers.quizzes}</th>
+                <th className="px-3 py-2">{copy.users.headers.emailVerified}</th>
+                <th className="px-3 py-2">{copy.users.headers.status}</th>
+                <th className="px-3 py-2">{copy.users.headers.role}</th>
+                <th className="px-3 py-2">{copy.users.headers.actions}</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
-                <tr key={u.id} className="border-t border-slate-200">
+              {users.map((user) => (
+                <tr key={user.id} className="border-t border-slate-200 dark:border-slate-700">
                   <td className="px-3 py-2 font-mono text-xs">
-                    {u.email}
-                    {u.is_superuser && (
+                    {user.email}
+                    {user.is_superuser ? (
                       <span className="ml-1 px-1 rounded bg-indigo-100 text-indigo-700 text-[10px]">
-                        super
+                        {copy.users.superBadge}
                       </span>
-                    )}
+                    ) : null}
                   </td>
                   <td className="px-3 py-2">
-                    {[u.first_name, u.last_name].filter(Boolean).join(' ') || '—'}
+                    {[user.first_name, user.last_name].filter(Boolean).join(' ') || copy.users.emptyName}
                   </td>
-                  <td className="px-3 py-2">{u.quiz_count}</td>
+                  <td className="px-3 py-2">{user.quiz_count}</td>
                   <td className="px-3 py-2">
-                    {u.email_verified ? (
-                      <span className="text-emerald-600">✓ oui</span>
+                    {user.email_verified ? (
+                      <span className="text-emerald-600">✓ {copy.users.yes}</span>
                     ) : (
-                      <span className="text-slate-400">non</span>
+                      <span className="text-slate-400">{copy.users.no}</span>
                     )}
                   </td>
                   <td className="px-3 py-2">
-                    {u.is_active ? (
-                      <span className="text-emerald-600">actif</span>
+                    {user.is_active ? (
+                      <span className="text-emerald-600">{copy.users.active}</span>
                     ) : (
-                      <span className="text-rose-600">désactivé</span>
+                      <span className="text-rose-600">{copy.users.disabled}</span>
                     )}
                   </td>
-                  <td className="px-3 py-2">{u.is_staff ? 'admin' : 'membre'}</td>
+                  <td className="px-3 py-2">
+                    {user.is_staff ? copy.users.adminRole : copy.users.memberRole}
+                  </td>
                   <td className="px-3 py-2">
                     <div className="flex flex-wrap gap-2 text-xs">
                       <button
-                        onClick={() => patch(u, { is_active: !u.is_active })}
+                        onClick={() => patch(user, { is_active: !user.is_active })}
                         className="text-indigo-600 hover:underline"
                       >
-                        {u.is_active ? 'Désactiver' : 'Activer'}
+                        {user.is_active ? copy.users.deactivate : copy.users.activate}
                       </button>
                       <button
-                        onClick={() => patch(u, { is_staff: !u.is_staff })}
+                        onClick={() => patch(user, { is_staff: !user.is_staff })}
                         className="text-indigo-600 hover:underline"
                       >
-                        {u.is_staff ? 'Retirer admin' : 'Rendre admin'}
+                        {user.is_staff ? copy.users.removeAdmin : copy.users.makeAdmin}
                       </button>
-                      {!u.email_verified && (
+                      {!user.email_verified ? (
                         <>
                           <button
-                            onClick={() => patch(u, { email_verified: true })}
+                            onClick={() => patch(user, { email_verified: true })}
                             className="text-indigo-600 hover:underline"
                           >
-                            Forcer vérif.
+                            {copy.users.forceVerification}
                           </button>
                           <button
-                            onClick={() => resend(u)}
+                            onClick={() => resend(user)}
                             className="text-indigo-600 hover:underline"
                           >
-                            Renvoyer mail
+                            {copy.users.resendEmail}
                           </button>
                         </>
-                      )}
-                      <button onClick={() => remove(u)} className="text-rose-600 hover:underline">
-                        Supprimer
+                      ) : null}
+                      <button onClick={() => remove(user)} className="text-rose-600 hover:underline">
+                        {copy.users.delete}
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && (
+              {users.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-3 py-6 text-center text-slate-400">
-                    Aucun utilisateur trouvé.
+                    {copy.users.empty}
                   </td>
                 </tr>
-              )}
+              ) : null}
             </tbody>
           </table>
         </div>

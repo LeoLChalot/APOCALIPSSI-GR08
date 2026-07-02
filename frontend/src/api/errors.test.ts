@@ -12,4 +12,23 @@ describe('getApiErrorMessage', () => {
     const err = new AxiosError('Network Error');
     expect(getApiErrorMessage(err, 'fallback')).toContain('joindre le serveur');
   });
+
+  it('permet de traduire un message backend connu', () => {
+    const err = new AxiosError('Request failed', '400', undefined, undefined, {
+      status: 400,
+      statusText: 'Bad Request',
+      headers: {},
+      config: {} as never,
+      data: { non_field_errors: ['Email ou mot de passe invalide.'] },
+    });
+
+    expect(
+      getApiErrorMessage(err, {
+        fallback: 'Fallback',
+        translations: {
+          'Email ou mot de passe invalide.': 'Invalid credentials.',
+        },
+      }),
+    ).toBe('Invalid credentials.');
+  });
 });

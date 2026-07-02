@@ -14,6 +14,12 @@
  */
 import { AxiosError } from 'axios';
 
+type ApiErrorMessageOptions = {
+  fallback?: string;
+  networkMessage?: string;
+  translations?: Record<string, string>;
+};
+
 /** Normalise une valeur d'erreur DRF (string ou string[]) en string. */
 function asString(value: unknown): string | undefined {
   if (typeof value === 'string') return value;
@@ -23,14 +29,39 @@ function asString(value: unknown): string | undefined {
   return undefined;
 }
 
-export function getApiErrorMessage(err: unknown, fallback = 'Une erreur est survenue.'): string {
+function normalizeOptions(
+  fallbackOrOptions: string | ApiErrorMessageOptions | undefined,
+): Required<ApiErrorMessageOptions> {
+  if (typeof fallbackOrOptions === 'string' || fallbackOrOptions === undefined) {
+    return {
+      fallback: fallbackOrOptions ?? 'Une erreur est survenue.',
+      networkMessage:
+        'Impossible de joindre le serveur. Vérifiez que le backend est démarré ' +
+        "et que la configuration CORS autorise l'adresse du frontend.",
+      translations: {},
+    };
+  }
+
+  return {
+    fallback: fallbackOrOptions.fallback ?? 'Une erreur est survenue.',
+    networkMessage:
+      fallbackOrOptions.networkMessage ??
+      ('Impossible de joindre le serveur. Vérifiez que le backend est démarré ' +
+        "et que la configuration CORS autorise l'adresse du frontend."),
+    translations: fallbackOrOptions.translations ?? {},
+  };
+}
+
+export function getApiErrorMessage(
+  err: unknown,
+  fallbackOrOptions?: string | ApiErrorMessageOptions,
+): string {
+  const options = normalizeOptions(fallbackOrOptions);
+
   if (err instanceof AxiosError) {
     // Aucune réponse = serveur injoignable ou requête bloquée (CORS, backend éteint).
     if (!err.response) {
-      return (
-        'Impossible de joindre le serveur. Vérifiez que le backend est démarré ' +
-        "et que la configuration CORS autorise l'adresse du frontend."
-      );
+      return options.networkMessage;
     }
 
     const data = err.response.data as Record<string, unknown> | undefined;
@@ -41,12 +72,12 @@ export function getApiErrorMessage(err: unknown, fallback = 'Une erreur est surv
         asString(data.password) ??
         asString(data.non_field_errors) ??
         asString(data.detail);
-      if (fieldError) return fieldError;
+      if (fieldError) return options.translations[fieldError] ?? fieldError;
     }
 
     // Réponse sans corps exploitable : on expose au moins le code HTTP.
-    return `${fallback} (HTTP ${err.response.status})`;
+    return `${options.fallback} (HTTP ${err.response.status})`;
   }
 
-  return fallback;
+  return options.fallback;
 }

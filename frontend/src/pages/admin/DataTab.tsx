@@ -1,19 +1,15 @@
-/**
- * Onglet « Données » de l'admin : insérer des données de démo (seed) et
- * réinitialiser la base (DESTRUCTIF, double confirmation).
- */
 import { useState, type FormEvent } from 'react';
-import { seedData, resetData } from '@/api/admin';
+import { resetData, seedData } from '@/api/admin';
 import { getApiErrorMessage } from '@/api/errors';
+import { getAdminCopy } from '@/content/profileAdminCopy';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function DataTab() {
+  const { language } = useLanguage();
+  const copy = getAdminCopy(language);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Seed
   const [seeding, setSeeding] = useState(false);
-
-  // Reset destructif
   const [confirmText, setConfirmText] = useState('');
   const [password, setPassword] = useState('');
   const [includeUsers, setIncludeUsers] = useState(false);
@@ -24,9 +20,10 @@ export default function DataTab() {
     setError(null);
     setSeeding(true);
     try {
-      setMessage(await seedData());
+      await seedData();
+      setMessage(copy.data.seedSuccess);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Seed impossible.'));
+      setError(getApiErrorMessage(err, copy.data.seedError));
     } finally {
       setSeeding(false);
     }
@@ -38,15 +35,24 @@ export default function DataTab() {
     setError(null);
     setResetting(true);
     try {
-      const r = await resetData(password, includeUsers);
+      const result = await resetData(password, includeUsers);
       setMessage(
-        `${r.detail} (${r.deleted_quizzes} quiz, ${r.deleted_users} utilisateurs supprimés)`,
+        copy.data.resetSuccess
+          .replace('{{quizzes}}', String(result.deleted_quizzes))
+          .replace('{{users}}', String(result.deleted_users)),
       );
       setConfirmText('');
       setPassword('');
       setIncludeUsers(false);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Réinitialisation impossible.'));
+      setError(
+        getApiErrorMessage(err, {
+          fallback: copy.data.resetError,
+          translations: {
+            'Mot de passe administrateur incorrect.': copy.data.resetPasswordInvalid,
+          },
+        }),
+      );
     } finally {
       setResetting(false);
     }
@@ -54,47 +60,48 @@ export default function DataTab() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {message && (
-        <div className="p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded">
+      {message ? (
+        <div
+          role="status"
+          className="p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded"
+        >
           {message}
         </div>
-      )}
-      {error && (
-        <div className="p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+      ) : null}
+      {error ? (
+        <div
+          role="alert"
+          className="p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+        >
           {error}
         </div>
-      )}
+      ) : null}
 
-      {/* Seed */}
       <section className="card">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">Données de démonstration</h2>
-        <p className="text-sm text-slate-600 mb-4">
-          Insère un utilisateur de test et des quiz d'exemple (commande <code>seed</code>).
-        </p>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          {copy.data.seedTitle}
+        </h2>
+        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{copy.data.seedIntro}</p>
         <button onClick={doSeed} disabled={seeding} className="btn-secondary">
-          {seeding ? 'Insertion…' : 'Insérer des données de démo'}
+          {seeding ? copy.data.seeding : copy.data.seed}
         </button>
       </section>
 
-      {/* Reset destructif */}
       <section className="card border-2 border-rose-200">
-        <h2 className="text-lg font-semibold text-rose-700 mb-2">Réinitialiser la base ⚠️</h2>
-        <p className="text-sm text-slate-600 mb-4">
-          Supprime <strong>tous les quiz</strong> (et leurs questions). Optionnellement, supprime
-          aussi tous les comptes non-administrateurs. <strong>Action irréversible.</strong>
-        </p>
+        <h2 className="text-lg font-semibold text-rose-700 mb-2">{copy.data.resetTitle}</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{copy.data.resetIntro}</p>
         <form onSubmit={doReset} className="space-y-4">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
             <input
               type="checkbox"
               checked={includeUsers}
               onChange={(e) => setIncludeUsers(e.target.checked)}
             />
-            Supprimer aussi les comptes non-administrateurs
+            {copy.data.includeUsers}
           </label>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Tapez <code className="bg-slate-100 px-1 rounded">RESET</code> pour confirmer
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+              {copy.data.confirmReset}
             </label>
             <input
               type="text"
@@ -104,8 +111,8 @@ export default function DataTab() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Votre mot de passe administrateur
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+              {copy.data.adminPassword}
             </label>
             <input
               type="password"
@@ -120,7 +127,7 @@ export default function DataTab() {
             disabled={resetting || confirmText !== 'RESET' || !password}
             className="px-4 py-2 rounded bg-rose-600 text-white font-medium hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {resetting ? 'Réinitialisation…' : 'Réinitialiser la base'}
+            {resetting ? copy.data.resetting : copy.data.reset}
           </button>
         </form>
       </section>

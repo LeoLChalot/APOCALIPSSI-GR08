@@ -1,10 +1,13 @@
-/** Onglet « Config app » de l'admin : réglages globaux de l'application. */
 import { useEffect, useState, type FormEvent } from 'react';
-import { getSiteConfig, updateSiteConfig, type SiteConfig } from '@/api/admin';
-import { useSiteConfig } from '@/contexts/SiteConfigContext';
+import { getSiteConfig, type SiteConfig, updateSiteConfig } from '@/api/admin';
 import { getApiErrorMessage } from '@/api/errors';
+import { getAdminCopy } from '@/content/profileAdminCopy';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
 
 export default function SiteConfigTab() {
+  const { language } = useLanguage();
+  const copy = getAdminCopy(language);
   const { refresh } = useSiteConfig();
   const [form, setForm] = useState<SiteConfig | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -14,11 +17,11 @@ export default function SiteConfigTab() {
   useEffect(() => {
     getSiteConfig()
       .then(setForm)
-      .catch((err) => setError(getApiErrorMessage(err, 'Chargement impossible.')));
-  }, []);
+      .catch((err) => setError(getApiErrorMessage(err, copy.loadError)));
+  }, [copy.loadError]);
 
   if (error && !form) return <p className="text-rose-600">{error}</p>;
-  if (!form) return <p className="text-slate-500">Chargement…</p>;
+  if (!form) return <p className="text-slate-500 dark:text-slate-400">{copy.loading}</p>;
 
   const set = <K extends keyof SiteConfig>(key: K, value: SiteConfig[K]) =>
     setForm({ ...form, [key]: value });
@@ -37,10 +40,10 @@ export default function SiteConfigTab() {
         banner_message: form.banner_message,
       });
       setForm(saved);
-      await refresh(); // met à jour l'en-tête + la bannière dans toute l'app
-      setMessage('Configuration enregistrée.');
+      await refresh();
+      setMessage(copy.site.saveSuccess);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Enregistrement impossible.'));
+      setError(getApiErrorMessage(err, copy.site.saveError));
     } finally {
       setLoading(false);
     }
@@ -48,20 +51,26 @@ export default function SiteConfigTab() {
 
   return (
     <form onSubmit={save} className="card space-y-5 max-w-2xl">
-      {message && (
-        <div className="p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded">
+      {message ? (
+        <div
+          role="status"
+          className="p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded"
+        >
           {message}
         </div>
-      )}
-      {error && (
-        <div className="p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+      ) : null}
+      {error ? (
+        <div
+          role="alert"
+          className="p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+        >
           {error}
         </div>
-      )}
+      ) : null}
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          Nom de l'application
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+          {copy.site.appName}
         </label>
         <input
           type="text"
@@ -71,7 +80,7 @@ export default function SiteConfigTab() {
         />
       </div>
 
-      <label className="flex items-start gap-3 text-sm text-slate-700">
+      <label className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-200">
         <input
           type="checkbox"
           checked={form.allow_signups}
@@ -79,14 +88,12 @@ export default function SiteConfigTab() {
           className="mt-1"
         />
         <span>
-          <strong>Autoriser les inscriptions</strong>
-          <span className="block text-slate-500">
-            Décoché = plus aucune création de compte (le login reste ouvert).
-          </span>
+          <strong>{copy.site.allowSignupsTitle}</strong>
+          <span className="block text-slate-500 dark:text-slate-400">{copy.site.allowSignupsHelp}</span>
         </span>
       </label>
 
-      <label className="flex items-start gap-3 text-sm text-slate-700">
+      <label className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-200">
         <input
           type="checkbox"
           checked={form.require_email_verification}
@@ -94,14 +101,12 @@ export default function SiteConfigTab() {
           className="mt-1"
         />
         <span>
-          <strong>Exiger la validation d'email</strong>
-          <span className="block text-slate-500">
-            Coché = un email confirmé est requis pour générer des quiz.
-          </span>
+          <strong>{copy.site.requireEmailTitle}</strong>
+          <span className="block text-slate-500 dark:text-slate-400">{copy.site.requireEmailHelp}</span>
         </span>
       </label>
 
-      <label className="flex items-start gap-3 text-sm text-slate-700">
+      <label className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-200">
         <input
           type="checkbox"
           checked={form.banner_enabled}
@@ -109,26 +114,26 @@ export default function SiteConfigTab() {
           className="mt-1"
         />
         <span>
-          <strong>Afficher une bannière globale</strong>
-          <span className="block text-slate-500">Annonce visible par tous les utilisateurs.</span>
+          <strong>{copy.site.bannerTitle}</strong>
+          <span className="block text-slate-500 dark:text-slate-400">{copy.site.bannerHelp}</span>
         </span>
       </label>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          Message de la bannière
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+          {copy.site.bannerMessage}
         </label>
         <textarea
           value={form.banner_message}
           onChange={(e) => set('banner_message', e.target.value)}
           rows={2}
           className="input"
-          placeholder="Ex. Maintenance prévue ce soir à 20h."
+          placeholder={copy.site.bannerPlaceholder}
         />
       </div>
 
       <button type="submit" disabled={loading} className="btn-primary">
-        {loading ? 'Enregistrement…' : 'Enregistrer'}
+        {loading ? copy.site.saving : copy.site.save}
       </button>
     </form>
   );

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getQuiz, submitAnswers, type Quiz, type AnswerResult } from '@/api/quizzes';
 
 export default function QuizPage() {
   const { id } = useParams<{ id: string }>();
   const quizId = Number(id);
+  const { t } = useTranslation();
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -17,9 +19,9 @@ export default function QuizPage() {
     setLoading(true);
     getQuiz(quizId)
       .then(setQuiz)
-      .catch(() => setError('Impossible de charger ce quiz.'))
+      .catch(() => setError(t('quiz.loadError')))
       .finally(() => setLoading(false));
-  }, [quizId]);
+  }, [quizId, t]);
 
   const handleSelect = (questionIndex: number, optionIndex: number) => {
     if (result) return; // déjà soumis
@@ -38,13 +40,13 @@ export default function QuizPage() {
       setResult(res);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
-      setError('Échec de la soumission.');
+      setError(t('quiz.submitError'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) return <p className="text-slate-500">Chargement du quiz…</p>;
+  if (loading) return <p className="text-slate-500">{t('common.loading')}</p>;
   if (error) return <p className="text-rose-600">{error}</p>;
   if (!quiz) return null;
 
@@ -56,13 +58,15 @@ export default function QuizPage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">{quiz.title}</h1>
         <p className="text-sm text-slate-500">
-          Quiz #{quiz.id} · {quiz.questions.length} questions
+          {t('quiz.meta', { id: quiz.id, count: quiz.questions.length })}
         </p>
       </div>
 
       {/* Résultat */}
       {result && (
         <div
+          role="status"
+          aria-live="polite"
           className={`card border-l-4 ${
             result.score >= 7
               ? 'border-emerald-500 bg-emerald-50'
@@ -72,19 +76,19 @@ export default function QuizPage() {
           }`}
         >
           <h2 className="text-3xl font-bold text-slate-900 mb-2">
-            Score : {result.score} / {result.total}
+            {t('quiz.score', { score: result.score, total: result.total })}
           </h2>
           <p className="text-slate-700">
             {result.score === 10
-              ? '🎉 Sans-faute ! Tu maitrises ce chapitre.'
+              ? t('quiz.resultPerfect')
               : result.score >= 7
-                ? '👍 Bon résultat. Revois les questions ratées en bas de page.'
+                ? t('quiz.resultGood')
                 : result.score >= 4
-                  ? "📚 Tu as les bases, mais des révisions s'imposent."
-                  : '⚠️ Il faut reprendre le cours en profondeur.'}
+                  ? t('quiz.resultAverage')
+                  : t('quiz.resultPoor')}
           </p>
           <Link to="/history" className="btn-secondary mt-4 inline-flex">
-            Retour à l'historique
+            {t('quiz.returnHistory')}
           </Link>
         </div>
       )}
@@ -95,11 +99,16 @@ export default function QuizPage() {
         const detail = result?.details.find((d) => d.index === q.index);
 
         return (
-          <article key={q.index} className="card">
-            <div className="flex items-baseline gap-2 mb-3">
-              <span className="font-mono text-sm text-indigo-600">Q{q.index}</span>
-              <h3 className="font-semibold text-slate-900">{q.prompt}</h3>
-            </div>
+          <fieldset key={q.index} className="card">
+            <legend className="w-full mb-3">
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono text-sm text-indigo-600">
+                  {t('quiz.questionLabel', { index: q.index })}
+                </span>
+                <span className="font-semibold text-slate-900">{q.prompt}</span>
+              </div>
+            </legend>
+            <p className="sr-only">{t('quiz.radioHint')}</p>
             <div className="space-y-2">
               {q.options.map((opt, optIdx) => {
                 const isSelected = userChoice === optIdx;
@@ -116,28 +125,45 @@ export default function QuizPage() {
                 }
 
                 return (
-                  <button
+                  <label
                     key={optIdx}
-                    type="button"
-                    disabled={!!result}
-                    onClick={() => handleSelect(q.index, optIdx)}
-                    className={`w-full text-left p-3 border-2 rounded transition ${cls}`}
+                    className={`flex items-start gap-3 w-full p-3 border-2 rounded transition cursor-pointer ${cls} ${
+                      result ? 'cursor-default' : ''
+                    }`}
                   >
-                    <span className="font-mono mr-2 text-slate-500">
-                      {String.fromCharCode(65 + optIdx)}.
+                    <input
+                      type="radio"
+                      name={`question-${q.index}`}
+                      value={optIdx}
+                      checked={isSelected}
+                      disabled={!!result}
+                      onChange={() => handleSelect(q.index, optIdx)}
+                      className="mt-1 h-4 w-4 shrink-0 accent-indigo-600"
+                      aria-label={t('quiz.choiceLabel', {
+                        letter: String.fromCharCode(65 + optIdx),
+                      })}
+                    />
+                    <span className="flex-1">
+                      <span className="font-mono mr-2 text-slate-500" aria-hidden="true">
+                        {String.fromCharCode(65 + optIdx)}.
+                      </span>
+                      {opt}
                     </span>
-                    {opt}
                     {result && isCorrect && (
-                      <span className="ml-2 text-emerald-600 font-bold">✓</span>
+                      <span className="ml-2 text-emerald-700 font-semibold text-sm">
+                        {t('quiz.correctBadge')}
+                      </span>
                     )}
                     {result && isWrongPick && (
-                      <span className="ml-2 text-rose-600 font-bold">✗</span>
+                      <span className="ml-2 text-rose-700 font-semibold text-sm">
+                        {t('quiz.incorrectBadge')}
+                      </span>
                     )}
-                  </button>
+                  </label>
                 );
               })}
             </div>
-          </article>
+          </fieldset>
         );
       })}
 
@@ -149,10 +175,10 @@ export default function QuizPage() {
           className="btn-signature w-full py-3 text-base"
         >
           {submitting
-            ? 'Correction en cours…'
+            ? t('quiz.submitting')
             : allAnswered
-              ? '🎯 Soumettre mes réponses'
-              : `Répondre à toutes les questions (${Object.keys(answers).length}/10)`}
+              ? `🎯 ${t('quiz.submit')}`
+              : t('quiz.answerAll', { count: Object.keys(answers).length })}
         </button>
       )}
     </div>

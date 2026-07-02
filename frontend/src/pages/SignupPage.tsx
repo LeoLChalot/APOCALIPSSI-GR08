@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { signup } from '@/api/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSiteConfig } from '@/contexts/SiteConfigContext';
@@ -8,7 +9,12 @@ import { getApiErrorMessage } from '@/api/errors';
 export default function SignupPage() {
   const { refresh } = useAuth();
   const { config } = useSiteConfig();
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const emailId = useId();
+  const firstNameId = useId();
+  const lastNameId = useId();
+  const passwordId = useId();
 
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -32,7 +38,7 @@ export default function SignupPage() {
       // Un bandeau (dans le Layout) invitera ensuite à confirmer l'email.
       navigate('/upload', { replace: true });
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Inscription impossible.'));
+      setError(getApiErrorMessage(err, t('signup.signupError')));
     } finally {
       setLoading(false);
     }
@@ -44,12 +50,10 @@ export default function SignupPage() {
       <div className="max-w-md mx-auto">
         <div className="card text-center">
           <div className="text-4xl mb-3">🔒</div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Inscriptions fermées</h1>
-          <p className="text-sm text-slate-500 mb-4">
-            Les inscriptions sont actuellement désactivées. Revenez plus tard.
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">{t('signup.closedTitle')}</h1>
+          <p className="text-sm text-slate-500 mb-4">{t('signup.closedBody')}</p>
           <Link to="/login" className="text-indigo-600 hover:underline">
-            Déjà un compte ? Se connecter
+            {t('signup.alreadyHaveAccount')}
           </Link>
         </div>
       </div>
@@ -59,24 +63,30 @@ export default function SignupPage() {
   return (
     <div className="max-w-md mx-auto">
       <div className="card">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Créer un compte</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">{t('signup.title')}</h1>
         <p className="text-sm text-slate-500 mb-6">
-          Déjà inscrit ?{' '}
+          {t('signup.alreadyRegistered')}{' '}
           <Link to="/login" className="text-indigo-600 hover:underline">
-            Se connecter
+            {t('signup.loginLink')}
           </Link>
         </p>
 
         {error && (
-          <div className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+          <div
+            role="alert"
+            className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded"
+          >
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label htmlFor={emailId} className="block text-sm font-medium text-slate-700 mb-1">
+              {t('common.email')}
+            </label>
             <input
+              id={emailId}
               type="email"
               required
               autoFocus
@@ -89,10 +99,12 @@ export default function SignupPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Prénom <span className="text-slate-400 font-normal">(facultatif)</span>
+              <label htmlFor={firstNameId} className="block text-sm font-medium text-slate-700 mb-1">
+                {t('signup.firstName')}{' '}
+                <span className="text-slate-400 font-normal">({t('common.optional')})</span>
               </label>
               <input
+                id={firstNameId}
                 type="text"
                 autoComplete="given-name"
                 value={firstName}
@@ -101,10 +113,12 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Nom <span className="text-slate-400 font-normal">(facultatif)</span>
+              <label htmlFor={lastNameId} className="block text-sm font-medium text-slate-700 mb-1">
+                {t('signup.lastName')}{' '}
+                <span className="text-slate-400 font-normal">({t('common.optional')})</span>
               </label>
               <input
+                id={lastNameId}
                 type="text"
                 autoComplete="family-name"
                 value={lastName}
@@ -115,11 +129,12 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Mot de passe
-              <span className="text-slate-400 font-normal"> (≥ 8 caractères)</span>
+            <label htmlFor={passwordId} className="block text-sm font-medium text-slate-700 mb-1">
+              {t('common.password')}
+              <span className="text-slate-400 font-normal"> ({t('signup.passwordHint')})</span>
             </label>
             <input
+              id={passwordId}
               type="password"
               required
               minLength={8}
@@ -131,7 +146,7 @@ export default function SignupPage() {
           </div>
 
           <button type="submit" disabled={loading} className="btn-primary w-full">
-            {loading ? 'Création du compte…' : 'Créer mon compte'}
+            {loading ? t('signup.submitting') : t('signup.submit')}
           </button>
         </form>
       </div>
