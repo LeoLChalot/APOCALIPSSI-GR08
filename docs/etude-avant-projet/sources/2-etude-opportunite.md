@@ -1,126 +1,126 @@
-# Étude d'opportunité — EduTutor IA
+# Ã‰tude d'opportunitÃ© â€” EduTutor IA
 
 ## 1. Contexte et objet du document
 
-Ce document constitue l'étude d'opportunité du projet **EduTutor IA**, plateforme web de révision par quiz QCM générés par intelligence artificielle à partir des supports de cours de l'étudiant (PDF ou texte saisi). Il vise à éclairer la décision d'engagement (Go / No-Go) en confrontant l'idée au marché, à la concurrence et aux conditions économiques de viabilité.
+Ce document constitue l'Ã©tude d'opportunitÃ© du projet **EduTutor IA**, plateforme web de rÃ©vision par quiz QCM gÃ©nÃ©rÃ©s par intelligence artificielle Ã  partir des supports de cours de l'Ã©tudiant (PDF ou texte saisi). Il vise Ã  Ã©clairer la dÃ©cision d'engagement (Go / No-Go) en confrontant l'idÃ©e au marchÃ©, Ã  la concurrence et aux conditions Ã©conomiques de viabilitÃ©.
 
-EduTutor IA se positionne comme une startup edtech française dont la singularité repose sur un choix d'architecture structurant : une **IA exécutée localement** (modèle Llama 3.1 8B via Ollama), gage de souveraineté des données et de conformité RGPD *by design*, complétée par une architecture multi-fournisseurs activable à la demande.
+EduTutor IA se positionne comme une startup edtech franÃ§aise dont la singularitÃ© repose sur un choix d'architecture structurant : une **IA exÃ©cutÃ©e localement** (modÃ¨le Llama 3.2 3B via Ollama), gage de souverainetÃ© des donnÃ©es et de conformitÃ© RGPD *by design*, complÃ©tÃ©e par une architecture multi-fournisseurs activable Ã  la demande.
 
-## 2. Contexte marché
+## 2. Contexte marchÃ©
 
-Le marché des outils d'aide à la révision assistés par IA connaît une croissance forte et soutenue depuis l'arrivée des grands modèles de langage grand public (fin 2022). Trois dynamiques structurent ce contexte.
+Le marchÃ© des outils d'aide Ã  la rÃ©vision assistÃ©s par IA connaÃ®t une croissance forte et soutenue depuis l'arrivÃ©e des grands modÃ¨les de langage grand public (fin 2022). Trois dynamiques structurent ce contexte.
 
-**Une demande étudiante en forte expansion.** Les usages d'IA générative se sont massivement diffusés dans l'enseignement supérieur. Les étudiants de BTS, Licence et Master utilisent désormais ces outils non plus seulement pour produire du contenu, mais pour s'auto-évaluer, structurer leurs révisions et combler leurs lacunes. La génération automatique de QCM à partir de leurs propres supports répond à un besoin concret : transformer un cours passif en exercice actif (apprentissage par récupération, ou *retrieval practice*, dont l'efficacité pédagogique est largement documentée).
+**Une demande Ã©tudiante en forte expansion.** Les usages d'IA gÃ©nÃ©rative se sont massivement diffusÃ©s dans l'enseignement supÃ©rieur. Les Ã©tudiants de BTS, Licence et Master utilisent dÃ©sormais ces outils non plus seulement pour produire du contenu, mais pour s'auto-Ã©valuer, structurer leurs rÃ©visions et combler leurs lacunes. La gÃ©nÃ©ration automatique de QCM Ã  partir de leurs propres supports rÃ©pond Ã  un besoin concret : transformer un cours passif en exercice actif (apprentissage par rÃ©cupÃ©ration, ou *retrieval practice*, dont l'efficacitÃ© pÃ©dagogique est largement documentÃ©e).
 
-**Une offre encore fragmentée et anglo-saxonne.** Les solutions dominantes (Quizlet, Khanmigo) sont américaines, pensées pour un marché et un système éducatif différents, et reposent quasi systématiquement sur des LLM cloud propriétaires. L'offre francophone, réellement ancrée dans les pratiques pédagogiques nationales, reste embryonnaire.
+**Une offre encore fragmentÃ©e et anglo-saxonne.** Les solutions dominantes (Quizlet, Khanmigo) sont amÃ©ricaines, pensÃ©es pour un marchÃ© et un systÃ¨me Ã©ducatif diffÃ©rents, et reposent quasi systÃ©matiquement sur des LLM cloud propriÃ©taires. L'offre francophone, rÃ©ellement ancrÃ©e dans les pratiques pÃ©dagogiques nationales, reste embryonnaire.
 
-**Une pression réglementaire et de confiance croissante.** Le RGPD, le futur cadre européen sur l'IA (*AI Act*) et la sensibilité particulière des données éducatives (souvent rattachées à des mineurs ou à des établissements publics) font de la conformité un critère d'achat de plus en plus différenciant, notamment pour la cible secondaire « enseignant / établissement ». Les solutions transférant systématiquement les contenus vers des serveurs hors UE deviennent un point de friction juridique et politique.
+**Une pression rÃ©glementaire et de confiance croissante.** Le RGPD, le futur cadre europÃ©en sur l'IA (*AI Act*) et la sensibilitÃ© particuliÃ¨re des donnÃ©es Ã©ducatives (souvent rattachÃ©es Ã  des mineurs ou Ã  des Ã©tablissements publics) font de la conformitÃ© un critÃ¨re d'achat de plus en plus diffÃ©renciant, notamment pour la cible secondaire Â« enseignant / Ã©tablissement Â». Les solutions transfÃ©rant systÃ©matiquement les contenus vers des serveurs hors UE deviennent un point de friction juridique et politique.
 
-Ce triple contexte — demande en hausse, offre peu localisée, exigence de conformité — dessine une fenêtre d'opportunité crédible pour une solution française, pédagogiquement ancrée et souveraine.
+Ce triple contexte â€” demande en hausse, offre peu localisÃ©e, exigence de conformitÃ© â€” dessine une fenÃªtre d'opportunitÃ© crÃ©dible pour une solution franÃ§aise, pÃ©dagogiquement ancrÃ©e et souveraine.
 
 ## 3. Analyse concurrentielle
 
-Le tableau ci-dessous confronte EduTutor IA aux cinq solutions de référence identifiées sur le segment de la révision et de l'assistance pédagogique par IA.
+Le tableau ci-dessous confronte EduTutor IA aux cinq solutions de rÃ©fÃ©rence identifiÃ©es sur le segment de la rÃ©vision et de l'assistance pÃ©dagogique par IA.
 
-| Solution | Positionnement | IA locale / cloud | RGPD / souveraineté | Cible principale | Modèle de prix |
+| Solution | Positionnement | IA locale / cloud | RGPD / souverainetÃ© | Cible principale | ModÃ¨le de prix |
 |---|---|---|---|---|---|
-| **Wilgo** | Assistant de révision IA francophone, fiches et quiz | Cloud (LLM tiers) | Hébergement UE, données envoyées au cloud | Étudiant secondaire / supérieur | Freemium + abonnement |
-| **Leo** | Tuteur conversationnel IA, accompagnement scolaire | Cloud | Variable selon fournisseur LLM | Élève / étudiant | Freemium / abonnement |
-| **Quizlet AI** | Flashcards et quiz, leader historique massifié | Cloud (propriétaire) | Données hors UE (acteur US) | Étudiant mondial (volume) | Freemium + Quizlet Plus |
-| **Khanmigo** | Tuteur IA adossé à Khan Academy, socle pédagogique fort | Cloud (GPT) | Données hors UE (acteur US) | Élève / enseignant (K-12) | Abonnement / institutionnel |
-| **Notion AI** | Productivité augmentée, génération de contenu transverse | Cloud | Données hors UE (acteur US) | Knowledge workers, étudiants avancés | Add-on payant sur abonnement |
-| **EduTutor IA** | Révision QCM à partir des cours de l'étudiant, ancrage pédagogique FR | **Local par défaut** (Ollama / Llama 3.1 8B), multi-fournisseurs optionnel | **RGPD by design, données souveraines** (traitement local) | Étudiant du supérieur FR (BTS/Licence/Master) ; enseignant | Gratuit en local ; pistes freemium |
+| **Wilgo** | Assistant de rÃ©vision IA francophone, fiches et quiz | Cloud (LLM tiers) | HÃ©bergement UE, donnÃ©es envoyÃ©es au cloud | Ã‰tudiant secondaire / supÃ©rieur | Freemium + abonnement |
+| **Leo** | Tuteur conversationnel IA, accompagnement scolaire | Cloud | Variable selon fournisseur LLM | Ã‰lÃ¨ve / Ã©tudiant | Freemium / abonnement |
+| **Quizlet AI** | Flashcards et quiz, leader historique massifiÃ© | Cloud (propriÃ©taire) | DonnÃ©es hors UE (acteur US) | Ã‰tudiant mondial (volume) | Freemium + Quizlet Plus |
+| **Khanmigo** | Tuteur IA adossÃ© Ã  Khan Academy, socle pÃ©dagogique fort | Cloud (GPT) | DonnÃ©es hors UE (acteur US) | Ã‰lÃ¨ve / enseignant (K-12) | Abonnement / institutionnel |
+| **Notion AI** | ProductivitÃ© augmentÃ©e, gÃ©nÃ©ration de contenu transverse | Cloud | DonnÃ©es hors UE (acteur US) | Knowledge workers, Ã©tudiants avancÃ©s | Add-on payant sur abonnement |
+| **EduTutor IA** | RÃ©vision QCM Ã  partir des cours de l'Ã©tudiant, ancrage pÃ©dagogique FR | **Local par dÃ©faut** (Ollama / Llama 3.2 3B), multi-fournisseurs optionnel | **RGPD by design, donnÃ©es souveraines** (traitement local) | Ã‰tudiant du supÃ©rieur FR (BTS/Licence/Master) ; enseignant | Gratuit en local ; pistes freemium |
 
-*Tableau 1 — Comparatif concurrentiel d'EduTutor IA.*
+*Tableau 1 â€” Comparatif concurrentiel d'EduTutor IA.*
 
-Lecture du tableau. Les acteurs établis se distinguent par leur volume d'usage et la richesse de leurs contenus, mais partagent deux dépendances : un traitement systématiquement *cloud* et, pour les leaders, un hébergement hors Union européenne. EduTutor IA n'a aucune chance de rivaliser sur le volume ou la notoriété à court terme ; sa différenciation se construit sur deux axes que les concurrents ne couvrent pas simultanément : **le traitement local souverain** et **l'ancrage pédagogique francophone** via des prompts métier pensés pour des enseignants.
+Lecture du tableau. Les acteurs Ã©tablis se distinguent par leur volume d'usage et la richesse de leurs contenus, mais partagent deux dÃ©pendances : un traitement systÃ©matiquement *cloud* et, pour les leaders, un hÃ©bergement hors Union europÃ©enne. EduTutor IA n'a aucune chance de rivaliser sur le volume ou la notoriÃ©tÃ© Ã  court terme ; sa diffÃ©renciation se construit sur deux axes que les concurrents ne couvrent pas simultanÃ©ment : **le traitement local souverain** et **l'ancrage pÃ©dagogique francophone** via des prompts mÃ©tier pensÃ©s pour des enseignants.
 
 ## 4. Analyse SWOT
 
-L'analyse SWOT synthétise les facteurs internes (forces / faiblesses) et externes (opportunités / menaces) conditionnant la réussite du projet.
+L'analyse SWOT synthÃ©tise les facteurs internes (forces / faiblesses) et externes (opportunitÃ©s / menaces) conditionnant la rÃ©ussite du projet.
 
 | **Forces (internes)** | **Faiblesses (internes)** |
 |---|---|
-| • IA **locale par défaut** : souveraineté, RGPD *by design*, coût d'inférence nul. <br>• Architecture **multi-fournisseurs** (Ollama, Gemini, Groq, Cerebras, Mistral, OpenRouter, premium) gouvernée par ADR : flexibilité et réversibilité. <br>• Stack moderne et maîtrisée (Django 5 / DRF, React 18 + Vite + TS, PostgreSQL 16, Docker). <br>• Ancrage pédagogique réel : prompts métier conçus pour les enseignants. <br>• Périmètre MVP clair et resserré (F1-F6). | • **Latence CPU** d'un LLM local : objectif < 60 s par quiz, exigeant sur un poste 16 Go RAM. <br>• Qualité de génération du modèle 8B en deçà des modèles cloud de pointe. <br>• Notoriété et base d'utilisateurs nulles au démarrage. <br>• Périmètre fonctionnel volontairement restreint (QCM uniquement, 10 questions). <br>• Dépendance à la qualité d'extraction PDF (pypdf). |
-| **Opportunités (externes)** | **Menaces (externes)** |
-| • Demande étudiante en forte croissance pour l'auto-évaluation par IA. <br>• Exigence RGPD / *AI Act* croissante, surtout côté enseignants et établissements. <br>• Offre francophone souveraine peu occupée. <br>• Cible secondaire « enseignant » (persona Mme Lefèvre) ouvrant un marché B2B/B2I. <br>• Démocratisation des LLM open-weight performants et légers. | • Concurrents établis (Quizlet, Khanmigo) aux moyens considérables. <br>• Possibilité que les leaders ajoutent une option « UE / souveraine ». <br>• Progrès rapide des LLM cloud creusant l'écart de qualité. <br>• Sensibilité prix d'une cible étudiante. <br>• Évolution réglementaire pouvant imposer des contraintes supplémentaires. |
+| â€¢ IA **locale par dÃ©faut** : souverainetÃ©, RGPD *by design*, coÃ»t d'infÃ©rence nul. <br>â€¢ Architecture **multi-fournisseurs** (Ollama, Gemini, Groq, Cerebras, Mistral, OpenRouter, premium) gouvernÃ©e par ADR : flexibilitÃ© et rÃ©versibilitÃ©. <br>â€¢ Stack moderne et maÃ®trisÃ©e (Django 5 / DRF, React 18 + Vite + TS, PostgreSQL 16, Docker). <br>â€¢ Ancrage pÃ©dagogique rÃ©el : prompts mÃ©tier conÃ§us pour les enseignants. <br>â€¢ PÃ©rimÃ¨tre MVP clair et resserrÃ© (F1-F6). | â€¢ **Latence CPU** d'un LLM local : objectif < 60 s par quiz, exigeant sur un poste 16 Go RAM. <br>â€¢ QualitÃ© de gÃ©nÃ©ration du modÃ¨le 8B en deÃ§Ã  des modÃ¨les cloud de pointe. <br>â€¢ NotoriÃ©tÃ© et base d'utilisateurs nulles au dÃ©marrage. <br>â€¢ PÃ©rimÃ¨tre fonctionnel volontairement restreint (QCM uniquement, 10 questions). <br>â€¢ DÃ©pendance Ã  la qualitÃ© d'extraction PDF (pypdf). |
+| **OpportunitÃ©s (externes)** | **Menaces (externes)** |
+| â€¢ Demande Ã©tudiante en forte croissance pour l'auto-Ã©valuation par IA. <br>â€¢ Exigence RGPD / *AI Act* croissante, surtout cÃ´tÃ© enseignants et Ã©tablissements. <br>â€¢ Offre francophone souveraine peu occupÃ©e. <br>â€¢ Cible secondaire Â« enseignant Â» (persona Mme LefÃ¨vre) ouvrant un marchÃ© B2B/B2I. <br>â€¢ DÃ©mocratisation des LLM open-weight performants et lÃ©gers. | â€¢ Concurrents Ã©tablis (Quizlet, Khanmigo) aux moyens considÃ©rables. <br>â€¢ PossibilitÃ© que les leaders ajoutent une option Â« UE / souveraine Â». <br>â€¢ ProgrÃ¨s rapide des LLM cloud creusant l'Ã©cart de qualitÃ©. <br>â€¢ SensibilitÃ© prix d'une cible Ã©tudiante. <br>â€¢ Ã‰volution rÃ©glementaire pouvant imposer des contraintes supplÃ©mentaires. |
 
-*Tableau 2 — Matrice SWOT d'EduTutor IA.*
+*Tableau 2 â€” Matrice SWOT d'EduTutor IA.*
 
-## 5. Positionnement et proposition de valeur différenciante
+## 5. Positionnement et proposition de valeur diffÃ©renciante
 
-EduTutor IA se positionne sur l'intersection de trois attentes rarement satisfaites simultanément : **personnalisation** (les quiz sont générés à partir des cours réels de l'étudiant, et non d'un catalogue générique), **souveraineté** (le traitement par défaut reste sur la machine, sans transfert des contenus vers un tiers) et **pertinence pédagogique** (prompts métier conçus avec une logique enseignante).
+EduTutor IA se positionne sur l'intersection de trois attentes rarement satisfaites simultanÃ©ment : **personnalisation** (les quiz sont gÃ©nÃ©rÃ©s Ã  partir des cours rÃ©els de l'Ã©tudiant, et non d'un catalogue gÃ©nÃ©rique), **souverainetÃ©** (le traitement par dÃ©faut reste sur la machine, sans transfert des contenus vers un tiers) et **pertinence pÃ©dagogique** (prompts mÃ©tier conÃ§us avec une logique enseignante).
 
 La proposition de valeur se formule ainsi :
 
-> *« Transformez vos propres cours en quiz d'entraînement en moins d'une minute, sans que vos données ne quittent votre poste, avec une IA pensée par et pour des enseignants. »*
+> *Â« Transformez vos propres cours en quiz d'entraÃ®nement en moins d'une minute, sans que vos donnÃ©es ne quittent votre poste, avec une IA pensÃ©e par et pour des enseignants. Â»*
 
-Les piliers différenciants, par rapport au comparatif de la section 3 :
+Les piliers diffÃ©renciants, par rapport au comparatif de la section 3 :
 
-- **Données souveraines.** Le traitement local (Ollama / Llama 3.1 8B) élimine le transfert de contenus de cours vers un cloud tiers — argument décisif face aux solutions US et levier de confiance auprès des enseignants et établissements.
-- **Coût d'inférence nul en mode local.** L'absence de facturation à la requête autorise un usage illimité côté étudiant et un modèle économique non strictement indexé sur le coût d'API.
-- **Réversibilité technique.** L'architecture multi-fournisseurs, encadrée par des ADR, permet de basculer vers un LLM cloud (Gemini, Groq, Mistral, premium…) sans réécrire l'application — utile pour des cas premium ou des contextes sans GPU/CPU suffisant.
-- **Ancrage métier.** Les prompts orientés pédagogie produisent des QCM exploitables (10 questions, 4 options, une bonne réponse) directement alignés sur une logique d'évaluation formative.
+- **DonnÃ©es souveraines.** Le traitement local (Ollama / Llama 3.2 3B) Ã©limine le transfert de contenus de cours vers un cloud tiers â€” argument dÃ©cisif face aux solutions US et levier de confiance auprÃ¨s des enseignants et Ã©tablissements.
+- **CoÃ»t d'infÃ©rence nul en mode local.** L'absence de facturation Ã  la requÃªte autorise un usage illimitÃ© cÃ´tÃ© Ã©tudiant et un modÃ¨le Ã©conomique non strictement indexÃ© sur le coÃ»t d'API.
+- **RÃ©versibilitÃ© technique.** L'architecture multi-fournisseurs, encadrÃ©e par des ADR, permet de basculer vers un LLM cloud (Gemini, Groq, Mistral, premiumâ€¦) sans rÃ©Ã©crire l'application â€” utile pour des cas premium ou des contextes sans GPU/CPU suffisant.
+- **Ancrage mÃ©tier.** Les prompts orientÃ©s pÃ©dagogie produisent des QCM exploitables (10 questions, 4 options, une bonne rÃ©ponse) directement alignÃ©s sur une logique d'Ã©valuation formative.
 
 [[DIAGRAMME: cas-utilisation.svg]]
-*Figure 1 — Cas d'utilisation : périmètre fonctionnel couvert pour les acteurs Étudiant et Administrateur.*
+*Figure 1 â€” Cas d'utilisation : pÃ©rimÃ¨tre fonctionnel couvert pour les acteurs Ã‰tudiant et Administrateur.*
 
 ## 6. Cibles et personas
 
-| Persona | Profil | Besoin clé | Attente envers EduTutor IA |
+| Persona | Profil | Besoin clÃ© | Attente envers EduTutor IA |
 |---|---|---|---|
-| **Cible primaire — l'étudiant** | Étudiant du supérieur (BTS, Licence, Master) qui révise ses propres cours | S'auto-évaluer rapidement, identifier ses lacunes, réviser ses erreurs | Génération immédiate de QCM depuis un PDF/texte, score /10, historique et progression |
-| **Cible secondaire — l'enseignant (« Mme Lefèvre »)** | Enseignante souhaitant proposer des quiz à ses élèves, attentive à la conformité | Produire des évaluations formatives fiables sans exposer les contenus | IA souveraine, prompts pédagogiquement solides, contrôle des données |
+| **Cible primaire â€” l'Ã©tudiant** | Ã‰tudiant du supÃ©rieur (BTS, Licence, Master) qui rÃ©vise ses propres cours | S'auto-Ã©valuer rapidement, identifier ses lacunes, rÃ©viser ses erreurs | GÃ©nÃ©ration immÃ©diate de QCM depuis un PDF/texte, score /10, historique et progression |
+| **Cible secondaire â€” l'enseignant (Â« Mme LefÃ¨vre Â»)** | Enseignante souhaitant proposer des quiz Ã  ses Ã©lÃ¨ves, attentive Ã  la conformitÃ© | Produire des Ã©valuations formatives fiables sans exposer les contenus | IA souveraine, prompts pÃ©dagogiquement solides, contrÃ´le des donnÃ©es |
 
-*Tableau 3 — Personas cibles d'EduTutor IA.*
+*Tableau 3 â€” Personas cibles d'EduTutor IA.*
 
-La cible primaire (étudiant) porte l'adoption du MVP (fonctionnalités F1-F6 : authentification, saisie de cours, génération de 10 QCM, correction, score, historique). La cible secondaire (enseignant) constitue un relais de croissance émergent et l'angle de différenciation le plus défendable face aux acteurs cloud généralistes, tout en ouvrant une porte vers un futur marché B2B/institutionnel.
+La cible primaire (Ã©tudiant) porte l'adoption du MVP (fonctionnalitÃ©s F1-F6 : authentification, saisie de cours, gÃ©nÃ©ration de 10 QCM, correction, score, historique). La cible secondaire (enseignant) constitue un relais de croissance Ã©mergent et l'angle de diffÃ©renciation le plus dÃ©fendable face aux acteurs cloud gÃ©nÃ©ralistes, tout en ouvrant une porte vers un futur marchÃ© B2B/institutionnel.
 
-## 7. Pistes de modèle économique
+## 7. Pistes de modÃ¨le Ã©conomique
 
-À ce stade d'avant-projet, plusieurs pistes coexistent ; aucune n'est figée. Le choix de l'IA locale (coût d'inférence nul) offre une latitude que n'ont pas les concurrents indexés sur le coût d'API.
+Ã€ ce stade d'avant-projet, plusieurs pistes coexistent ; aucune n'est figÃ©e. Le choix de l'IA locale (coÃ»t d'infÃ©rence nul) offre une latitude que n'ont pas les concurrents indexÃ©s sur le coÃ»t d'API.
 
 | Piste | Principe | Avantages | Limites |
 |---|---|---|---|
-| **Open source / communautaire** | Application publique sur GitHub, auto-hébergeable | Adoption, contributions, crédibilité souveraine | Pas de revenu direct |
-| **Freemium étudiant** | Gratuit en local, fonctions avancées payantes (analytics, formats de questions, export) | Faible barrière d'entrée, conversion progressive | Conversion incertaine sur cible étudiante sensible au prix |
-| **Premium IA cloud** | Option payante basculant vers un LLM cloud premium (qualité supérieure, sans GPU local) | Monétise l'architecture multi-fournisseurs existante | Réintroduit un coût d'API et une dépendance externe |
-| **B2B / établissements** | Licence ou déploiement pour établissements (cible Mme Lefèvre) | Souveraineté = argument fort en B2I, panier plus élevé | Cycle de vente long, exigences contractuelles |
+| **Open source / communautaire** | Application publique sur GitHub, auto-hÃ©bergeable | Adoption, contributions, crÃ©dibilitÃ© souveraine | Pas de revenu direct |
+| **Freemium Ã©tudiant** | Gratuit en local, fonctions avancÃ©es payantes (analytics, formats de questions, export) | Faible barriÃ¨re d'entrÃ©e, conversion progressive | Conversion incertaine sur cible Ã©tudiante sensible au prix |
+| **Premium IA cloud** | Option payante basculant vers un LLM cloud premium (qualitÃ© supÃ©rieure, sans GPU local) | MonÃ©tise l'architecture multi-fournisseurs existante | RÃ©introduit un coÃ»t d'API et une dÃ©pendance externe |
+| **B2B / Ã©tablissements** | Licence ou dÃ©ploiement pour Ã©tablissements (cible Mme LefÃ¨vre) | SouverainetÃ© = argument fort en B2I, panier plus Ã©levÃ© | Cycle de vente long, exigences contractuelles |
 
-*Tableau 4 — Pistes de modèle économique.*
+*Tableau 4 â€” Pistes de modÃ¨le Ã©conomique.*
 
-La trajectoire la plus cohérente combine un **socle gratuit / open source** (acquisition et crédibilité souveraine) avec une **piste B2B / établissements** à moyen terme, où l'argument de souveraineté est le plus valorisé. Le mode *premium cloud* reste une option opportuniste, secondaire au regard de l'identité « locale » du produit.
+La trajectoire la plus cohÃ©rente combine un **socle gratuit / open source** (acquisition et crÃ©dibilitÃ© souveraine) avec une **piste B2B / Ã©tablissements** Ã  moyen terme, oÃ¹ l'argument de souverainetÃ© est le plus valorisÃ©. Le mode *premium cloud* reste une option opportuniste, secondaire au regard de l'identitÃ© Â« locale Â» du produit.
 
-## 8. Analyse coûts / bénéfices qualitative
+## 8. Analyse coÃ»ts / bÃ©nÃ©fices qualitative
 
-| Dimension | Coûts / efforts | Bénéfices attendus |
+| Dimension | CoÃ»ts / efforts | BÃ©nÃ©fices attendus |
 |---|---|---|
-| **Technique** | Maîtrise de la latence LLM local (< 60 s sur 16 Go RAM) ; intégration Ollama ; orchestration Docker (postgres, ollama, backend, frontend) | Stack moderne et réversible ; coût d'inférence nul ; déploiement reproductible (`docker compose up`) |
-| **Données / conformité** | Conception RGPD *by design* ; gestion vérification email, suppression de compte | Argument de confiance décisif ; conformité comme avantage concurrentiel, non comme contrainte |
-| **Produit** | Périmètre MVP resserré (QCM 10 questions) ; qualité de génération à éprouver | Time-to-value court ; proposition de valeur claire et démontrable |
-| **Marché** | Notoriété nulle ; coût d'acquisition à construire | Fenêtre francophone souveraine peu disputée ; double cible étudiant + enseignant |
-| **Financier** | Pas de revenu immédiat ; modèle à valider | Coûts opérationnels faibles (pas d'API à la requête en local) ; plusieurs pistes ouvertes |
+| **Technique** | MaÃ®trise de la latence LLM local (< 60 s sur 16 Go RAM) ; intÃ©gration Ollama ; orchestration Docker (postgres, ollama, backend, frontend) | Stack moderne et rÃ©versible ; coÃ»t d'infÃ©rence nul ; dÃ©ploiement reproductible (`docker compose up`) |
+| **DonnÃ©es / conformitÃ©** | Conception RGPD *by design* ; gestion vÃ©rification email, suppression de compte | Argument de confiance dÃ©cisif ; conformitÃ© comme avantage concurrentiel, non comme contrainte |
+| **Produit** | PÃ©rimÃ¨tre MVP resserrÃ© (QCM 10 questions) ; qualitÃ© de gÃ©nÃ©ration Ã  Ã©prouver | Time-to-value court ; proposition de valeur claire et dÃ©montrable |
+| **MarchÃ©** | NotoriÃ©tÃ© nulle ; coÃ»t d'acquisition Ã  construire | FenÃªtre francophone souveraine peu disputÃ©e ; double cible Ã©tudiant + enseignant |
+| **Financier** | Pas de revenu immÃ©diat ; modÃ¨le Ã  valider | CoÃ»ts opÃ©rationnels faibles (pas d'API Ã  la requÃªte en local) ; plusieurs pistes ouvertes |
 
-*Tableau 5 — Analyse coûts / bénéfices qualitative.*
+*Tableau 5 â€” Analyse coÃ»ts / bÃ©nÃ©fices qualitative.*
 
-Le profil coûts/bénéfices est favorable sur le plan opérationnel (coûts d'inférence et d'hébergement maîtrisés grâce au local) et stratégique (différenciation souveraine et pédagogique). Le principal poste de risque est technique — la latence d'un LLM local sur CPU — et fait l'objet d'un objectif explicite et mesurable (< 60 s par quiz), donc traçable dès le MVP.
+Le profil coÃ»ts/bÃ©nÃ©fices est favorable sur le plan opÃ©rationnel (coÃ»ts d'infÃ©rence et d'hÃ©bergement maÃ®trisÃ©s grÃ¢ce au local) et stratÃ©gique (diffÃ©renciation souveraine et pÃ©dagogique). Le principal poste de risque est technique â€” la latence d'un LLM local sur CPU â€” et fait l'objet d'un objectif explicite et mesurable (< 60 s par quiz), donc traÃ§able dÃ¨s le MVP.
 
 ## 9. Recommandation : Go / No-Go
 
-**Recommandation : GO**, sur un périmètre MVP resserré (fonctionnalités must-have F1-F6) et avec une vigilance prioritaire sur la latence de génération.
+**Recommandation : GO**, sur un pÃ©rimÃ¨tre MVP resserrÃ© (fonctionnalitÃ©s must-have F1-F6) et avec une vigilance prioritaire sur la latence de gÃ©nÃ©ration.
 
 Les arguments en faveur du Go :
 
-1. **Une fenêtre marché crédible.** Demande étudiante en croissance, offre francophone souveraine peu occupée, exigence de conformité montante : les trois conditions d'une opportunité réelle sont réunies.
-2. **Une différenciation défendable et non triviale à copier.** Le couple *IA locale souveraine* + *ancrage pédagogique francophone* n'est couvert par aucun concurrent du comparatif simultanément ; il est cohérent avec un futur marché enseignant / établissement.
-3. **Un risque maîtrisable et borné.** Le principal risque (latence LLM local) est identifié, mesurable (objectif < 60 s) et localisé techniquement ; il ne remet pas en cause la faisabilité globale, démontrée par une stack et une architecture déjà définies.
-4. **Un coût d'engagement contenu.** Périmètre MVP clair, coûts opérationnels faibles en mode local, déploiement reproductible par Docker : l'investissement initial reste proportionné au potentiel.
+1. **Une fenÃªtre marchÃ© crÃ©dible.** Demande Ã©tudiante en croissance, offre francophone souveraine peu occupÃ©e, exigence de conformitÃ© montante : les trois conditions d'une opportunitÃ© rÃ©elle sont rÃ©unies.
+2. **Une diffÃ©renciation dÃ©fendable et non triviale Ã  copier.** Le couple *IA locale souveraine* + *ancrage pÃ©dagogique francophone* n'est couvert par aucun concurrent du comparatif simultanÃ©ment ; il est cohÃ©rent avec un futur marchÃ© enseignant / Ã©tablissement.
+3. **Un risque maÃ®trisable et bornÃ©.** Le principal risque (latence LLM local) est identifiÃ©, mesurable (objectif < 60 s) et localisÃ© techniquement ; il ne remet pas en cause la faisabilitÃ© globale, dÃ©montrÃ©e par une stack et une architecture dÃ©jÃ  dÃ©finies.
+4. **Un coÃ»t d'engagement contenu.** PÃ©rimÃ¨tre MVP clair, coÃ»ts opÃ©rationnels faibles en mode local, dÃ©ploiement reproductible par Docker : l'investissement initial reste proportionnÃ© au potentiel.
 
-Conditions et points de vigilance attachés au Go :
+Conditions et points de vigilance attachÃ©s au Go :
 
-- **Valider l'objectif de latence** (< 60 s par quiz sur poste 16 Go RAM) dès les premières itérations : c'est le critère go/no-go technique de fait.
-- **Mesurer la qualité pédagogique** des QCM générés par le modèle 8B local, et activer la bascule multi-fournisseurs (via ADR) si l'écart de qualité est rédhibitoire.
-- **Tester l'appétence de la cible secondaire enseignant** au plus tôt, car elle porte la différenciation la plus durable.
-- **Différer les décisions de monétisation** : prioriser l'adoption et la preuve de valeur avant tout choix de modèle économique définitif.
+- **Valider l'objectif de latence** (< 60 s par quiz sur poste 16 Go RAM) dÃ¨s les premiÃ¨res itÃ©rations : c'est le critÃ¨re go/no-go technique de fait.
+- **Mesurer la qualitÃ© pÃ©dagogique** des QCM gÃ©nÃ©rÃ©s par le modÃ¨le 8B local, et activer la bascule multi-fournisseurs (via ADR) si l'Ã©cart de qualitÃ© est rÃ©dhibitoire.
+- **Tester l'appÃ©tence de la cible secondaire enseignant** au plus tÃ´t, car elle porte la diffÃ©renciation la plus durable.
+- **DiffÃ©rer les dÃ©cisions de monÃ©tisation** : prioriser l'adoption et la preuve de valeur avant tout choix de modÃ¨le Ã©conomique dÃ©finitif.
 
-En synthèse, EduTutor IA présente un rapport opportunité / risque favorable, adossé à un positionnement différenciant clair et à un périmètre maîtrisé. La décision recommandée est un **Go conditionné** à la validation continue de la latence de génération et de la qualité pédagogique des quiz.
+En synthÃ¨se, EduTutor IA prÃ©sente un rapport opportunitÃ© / risque favorable, adossÃ© Ã  un positionnement diffÃ©renciant clair et Ã  un pÃ©rimÃ¨tre maÃ®trisÃ©. La dÃ©cision recommandÃ©e est un **Go conditionnÃ©** Ã  la validation continue de la latence de gÃ©nÃ©ration et de la qualitÃ© pÃ©dagogique des quiz.

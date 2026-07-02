@@ -36,10 +36,12 @@ build:  ## Reconstruit les images Docker (après changement de Dockerfile / requ
 
 # ---------- LLM ----------
 
-pull-model:  ## Télécharge Llama 3.1 8B dans Ollama (~4.7 Go, à faire UNE fois)
-	@echo "⏳ Téléchargement du modèle Llama 3.1 8B… (~5 min selon connexion)"
-	docker exec apocalipssi-2026-ollama ollama pull llama3.1:8b
-	@echo "✅ Modèle téléchargé."
+pull-model:  ## Télécharge le modèle Ollama défini dans .env (par défaut : llama3.2:3b)
+	@MODEL=$$(sed -n 's/^[[:space:]]*OLLAMA_MODEL[[:space:]]*=[[:space:]]*//p' .env 2>/dev/null | head -n1); \
+	MODEL=$${MODEL:-llama3.2:3b}; \
+	echo "⏳ Téléchargement du modèle $${MODEL}… (~5 min selon connexion)"; \
+	docker exec apocalipssi-2026-ollama ollama pull "$$MODEL"; \
+	echo "✅ Modèle téléchargé."
 
 # ---------- Qualité de code ----------
 

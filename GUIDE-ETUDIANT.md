@@ -40,7 +40,7 @@ aux perturbations de la semaine.
 | **Admin** | Interface d'admin : config LLM/app depuis l'UI, gestion des utilisateurs |
 | **LLM** | 9 fournisseurs au choix (Ollama local par défaut + 7 cloud + mock) |
 | **Emails** | Bascule auto console (dev) / Brevo (réel) |
-| **Légal** | 4 pages légales **vierges** à compléter |
+| **Légal** | 4 pages légales **pré-remplies** à adapter à votre équipe |
 | **Outillage** | Docker, Makefile, CI GitHub Actions, tests, docs/ |
 
 ---
@@ -56,8 +56,9 @@ aux perturbations de la semaine.
 | RAM dispo | **≥ 8 Go** | Ollama charge ~5 Go |
 | Disque | **≥ 8 Go** | Modèle Llama + images |
 
-> 💡 Pas assez de RAM ? Utilisez un modèle plus léger (`OLLAMA_MODEL=llama3.2:3b`)
-> ou un fournisseur cloud gratuit (voir [§6](#6-choisir-son-llm)).
+> 💡 Le modèle local par défaut du kit est `OLLAMA_MODEL=llama3.2:3b`.
+> Si votre machine reste trop limitée, passez sur `phi3:mini` ou sur un
+> fournisseur cloud gratuit (voir [§6](#6-choisir-son-llm)).
 
 ### Étapes
 
@@ -66,14 +67,14 @@ aux perturbations de la semaine.
 git clone https://github.com/VOTRE-EQUIPE/IPSSI_APOCAL_KIT.git
 cd IPSSI_APOCAL_KIT
 
-# 2. Copiez la configuration
+# 2. Copiez la configuration fournie
 cp .env.example .env
 
 # 3. Lancez toute la stack (Postgres, Ollama, backend, frontend)
 docker compose up -d
 
 # 4. Téléchargez le modèle LLM (UNE seule fois, ~5 min)
-make pull-model      # ou : docker exec apocalipssi-2026-ollama ollama pull llama3.1:8b
+make pull-model      # lit OLLAMA_MODEL dans .env (par défaut : llama3.2:3b)
 
 # 5. (Optionnel) Données de démo
 make seed

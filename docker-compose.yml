@@ -1,9 +1,7 @@
 # ============================================================================
 # IPSSI_APOCAL_KIT — docker-compose.yml
 # ----------------------------------------------------------------------------
-# K0 (actuel) : postgres + ollama uniquement (services d'infrastructure).
-# K1 ajoutera : backend (Django).
-# K3 ajoutera : frontend (React Vite).
+# Stack locale complète : postgres + ollama + backend + frontend.
 #
 # Lancer : docker compose up -d
 # Puis :   make pull-model

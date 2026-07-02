@@ -11,10 +11,11 @@ Guide pas-à-pas pour passer de **zéro à un quiz généré par LLM** en ~10 mi
 | Docker | 24+ | https://docs.docker.com/get-docker/ |
 | Docker Compose | v2 | Inclus dans Docker Desktop |
 | Git | 2.30+ | https://git-scm.com/ |
-| RAM disponible | **8 Go** | Ollama charge ~5 Go au lancement du modèle |
-| Espace disque | **8 Go** | Llama 3.1 8B = 4.7 Go + images Docker |
+| RAM disponible | **8 Go** | Confortable pour Docker + Ollama local |
+| Espace disque | **8 Go** | Suffisant pour les images Docker + `llama3.2:3b` |
 
-> 💡 **Pas assez de RAM pour Llama 3.1 8B ?** Passez sur Llama 3.2 3B (`OLLAMA_MODEL=llama3.2:3b` dans `.env`) ou Phi-3 (`phi3:mini`).
+> 💡 **Le modèle local par défaut du kit est `llama3.2:3b`.** Si votre machine
+> reste trop limitée, passez sur `phi3:mini` ou sur un backend cloud.
 
 ---
 
@@ -51,7 +52,7 @@ docker compose up -d
 
 ### 4. Télécharger le modèle LLM
 
-⚠️ **Cette étape prend 3 à 10 minutes selon votre connexion** (4.7 Go à télécharger).
+⚠️ **Cette étape prend 3 à 10 minutes selon votre connexion** (environ 2 Go à télécharger avec `llama3.2:3b`).
 
 ```bash
 make pull-model

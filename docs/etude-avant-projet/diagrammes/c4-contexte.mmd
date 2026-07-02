@@ -1,15 +1,15 @@
-%% C4 niveau 1 — Diagramme de contexte (EduTutor IA)
+%% C4 niveau 1 â€” Diagramme de contexte (EduTutor IA)
 C4Context
-  title Contexte système (C4 niveau 1) — EduTutor IA
-  Person(etudiant, "Étudiant", "Révise à partir de ses propres cours")
+  title Contexte systÃ¨me (C4 niveau 1) â€” EduTutor IA
+  Person(etudiant, "Ã‰tudiant", "RÃ©vise Ã  partir de ses propres cours")
   Person(admin, "Administrateur", "Configure et exploite la plateforme")
-  System(edututor, "EduTutor IA", "Génère des quiz QCM à partir des cours déposés")
-  System_Ext(ollama, "Ollama (LLM local)", "Llama 3.1 8B — moteur par défaut")
-  System_Ext(cloud, "Fournisseurs LLM cloud", "Optionnels, activés via ADR")
+  System(edututor, "EduTutor IA", "GÃ©nÃ¨re des quiz QCM Ã  partir des cours dÃ©posÃ©s")
+  System_Ext(ollama, "Ollama (LLM local)", "Llama 3.2 3B â€” moteur par dÃ©faut")
+  System_Ext(cloud, "Fournisseurs LLM cloud", "Optionnels, activÃ©s via ADR")
   System_Ext(brevo, "Brevo", "Envoi des emails (validation, reset)")
 
-  Rel(etudiant, edututor, "Dépose des cours, passe des quiz")
+  Rel(etudiant, edututor, "DÃ©pose des cours, passe des quiz")
   Rel(admin, edututor, "Configure le LLM et l'application")
-  Rel(edututor, ollama, "Génère les QCM (local, souverain)")
-  Rel(edututor, cloud, "Génère les QCM (optionnel)")
-  Rel(edututor, brevo, "Envoie validation / réinitialisation")
+  Rel(edututor, ollama, "GÃ©nÃ¨re les QCM (local, souverain)")
+  Rel(edututor, cloud, "GÃ©nÃ¨re les QCM (optionnel)")
+  Rel(edututor, brevo, "Envoie validation / rÃ©initialisation")

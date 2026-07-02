@@ -104,7 +104,7 @@ docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
 Inspecter ce que renvoie Ollama directement :
 
 ```bash
-docker exec -it apocalipssi-2026-ollama ollama run llama3.1:8b "Génère 1 QCM en JSON sur les bases du HTTP"
+docker exec -it apocalipssi-2026-ollama ollama run llama3.2:3b "Génère 1 QCM en JSON sur les bases du HTTP"
 ```
 
 Si la qualité est mauvaise même en interactif :

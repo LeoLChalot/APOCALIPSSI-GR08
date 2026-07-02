@@ -36,7 +36,7 @@ Le client concret est choisi à l'exécution via `LLM_BACKEND` (env var).
 
 ## 🔀 Choisir le fournisseur LLM (gratuit vs payant)
 
-Quatre fournisseurs sont disponibles, sélectionnés par `LLM_BACKEND` dans `.env` :
+Neuf fournisseurs sont disponibles, sélectionnés par `LLM_BACKEND` dans `.env` :
 
 | `LLM_BACKEND` | Fournisseur | Coût | Données | Quand l'utiliser |
 |---|---|---|---|---|
@@ -94,7 +94,7 @@ LLM_BACKEND=ollama                       # gratuit, local (recommandé en dev)
 Le plus simple — éditer `.env` :
 
 ```bash
-OLLAMA_MODEL=llama3.2:3b      # plus léger (2 Go) si vous avez peu de RAM
+OLLAMA_MODEL=llama3.2:3b      # modèle local par défaut du kit (~2 Go)
 # ou
 OLLAMA_MODEL=mistral:7b        # alternative
 # ou

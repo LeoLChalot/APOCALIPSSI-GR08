@@ -15,7 +15,7 @@ de LLM open source.
 >
 > - ✅ **Déjà là** : auth par email (validation, reset, profil), génération de quiz par LLM
 >   local, back-office d'administration, 3 démos produit (dashboard, révision, mode sombre).
-> - 🔧 **À compléter / recalibrer avec le PO** : finitions F1–F6, pages légales (RGPD),
+> - 🔧 **À compléter / recalibrer avec le PO** : finitions F1–F6, revue des pages légales,
 >   durcissement sécurité, choix du fournisseur LLM (ADR), 2–3 pistes Release 2,
 >   boucle de feedback utilisateur.
 
@@ -41,7 +41,7 @@ de LLM open source.
 - **MVP2 (démos)** : tableau de bord de progression, révision des erreurs, **mode sombre**
 - **Admin** : interface d'admin (config LLM/app depuis l'UI, gestion des utilisateurs)
 - **LLM** : 9 fournisseurs au choix · **Emails** : console (dev) / Brevo (réel)
-- **Légal** : 4 pages légales vierges à compléter
+- **Légal** : 4 pages légales pré-remplies à adapter à votre équipe
 
 ---
 
@@ -59,39 +59,45 @@ de LLM open source.
 
 ---
 
-## 🚀 Démarrage en 4 commandes
+## 🚀 Démarrage rapide
 
 ```bash
 # 1. Forker ce repo dans le compte de votre équipe, puis cloner
 git clone https://github.com/VOTRE-EQUIPE/IPSSI_APOCAL_KIT.git
 cd IPSSI_APOCAL_KIT
 
-# 2. Copier la config et lancer les services
+# 2. Copier la configuration de développement fournie
 cp .env.example .env
+
+# 3. Lancer les services
 docker compose up -d
 
-# 3. Télécharger le modèle LLM (~5 min, à faire UNE fois)
+# 4. Télécharger le modèle Ollama défini dans .env (~5 min, à faire UNE fois)
 make pull-model
 
-# 4. Insérer les données de test et ouvrir l'app
+# 5. Insérer les données de test
 make seed
-open http://localhost:3000      # front React
-open http://localhost:8000/api/docs  # Swagger UI
 ```
+
+Puis ouvrez :
+- **Application** : <http://localhost:3000>
+- **API + Swagger** : <http://localhost:8000/api/docs>
 
 > 💡 Prérequis : Docker + Docker Compose, ≥ 8 Go RAM dispos pour Ollama,
 > ≥ 5 Go d'espace disque pour le modèle.
 >
-> Le `docker-compose.yml` par défaut tourne sur CPU. Si vous avez une machine
-> avec GPU NVIDIA compatible, ajoutez l'override suivant au lancement :
-> `docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d`
+> Le `docker-compose.yml` par défaut tourne sur CPU. Le modèle local conseillé
+> dans ce fork est `OLLAMA_MODEL=llama3.2:3b`. Si votre machine reste trop
+> limitée, passez sur `phi3:mini` ou sur un fournisseur cloud.
+> Si votre équipe maintient un override Compose pour NVIDIA, ajoutez-le au
+> lancement avec `docker compose -f docker-compose.yml -f <override>.yml up -d`.
 
 ---
 
 ## 🟢 Lancer l'application en une commande
 
-Plutôt que les 4 étapes manuelles ci-dessus, un **script de lancement par OS**
-fait tout d'un coup : crée le `.env` si besoin → **build** les images →
+Une fois le fichier `.env` créé, un **script de lancement par OS**
+fait tout d'un coup : réutilise votre `.env` → **build** les images →
 **(re)lance** les conteneurs → attend que le backend réponde → applique les
 **migrations** → insère les **données de démo** → vérifie le **modèle LLM** (et
 **propose de le télécharger** s'il manque) → affiche les URLs. Lançable depuis
@@ -123,10 +129,13 @@ bash scripts/start-linux.sh --fast --no-seed
 powershell -ExecutionPolicy Bypass -File scripts\start-windows.ps1 -Yes -Logs
 ```
 
-> 💡 Le **modèle LLM** (~4,7 Go) n'est téléchargé qu'une fois : au 1er lancement
+> 💡 Le **modèle LLM** (environ 2 Go avec `llama3.2:3b`) n'est téléchargé qu'une fois : au 1er lancement
 > le script détecte son absence et **vous demande** s'il faut le télécharger
 > (sauf en `--yes`/`-Yes`, où il le fait automatiquement). C'est l'étape la plus
 > longue.
+>
+> ℹ️ Si vous partez d'un clone vierge, les scripts savent maintenant créer
+> `.env` à partir de `.env.example` s'il manque.
 >
 > - Pour les **gestes ponctuels** (arrêter, voir les logs, réinitialiser la DB),
 >   préférez le **Makefile** (section *Commandes utiles* ci-dessous).
@@ -165,7 +174,7 @@ make help          # Liste toutes les cibles
 make dev           # Lance tous les services
 make down          # Arrête tous les services
 make logs          # Logs en temps réel
-make pull-model    # Télécharge Llama 3.1 8B (1 fois)
+make pull-model    # Télécharge le modèle Ollama défini dans .env (1 fois)
 make test          # Lance pytest + vitest
 make lint          # black, ruff, eslint, prettier
 make ci            # lint + test (cible CI)
@@ -245,7 +254,7 @@ En mode console, l'email s'affiche dans la sortie ; avec Brevo, il part réellem
 |---|---|
 | F1 | Inscription / connexion **par email** (Django Auth) |
 | F2 | Saisie cours (PDF ≤ 5 Mo OU texte ≥ 200 caractères) |
-| F3 | Génération auto de 10 QCM via Llama 3.1 8B |
+| F3 | Génération auto de 10 QCM via Ollama local (`llama3.2:3b` par défaut) |
 | F4 | Soumission + correction auto |
 | F5 | Affichage score /10 + détail |
 | F6 | Historique persisté par utilisateur |

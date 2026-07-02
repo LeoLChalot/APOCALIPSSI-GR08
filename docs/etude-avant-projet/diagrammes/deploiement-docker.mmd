@@ -1,11 +1,11 @@
-%% Diagramme de déploiement Docker (EduTutor IA)
+%% Diagramme de dÃ©ploiement Docker (EduTutor IA)
 flowchart TB
-  subgraph HOST["Poste / serveur — Docker Compose (projet : apocalipssi-2026)"]
+  subgraph HOST["Poste / serveur â€” Docker Compose (projet : apocalipssi-2026)"]
     direction TB
-    FE["apocalipssi-2026-frontend<br/>React + Vite (port 3000 → hôte)"]
+    FE["apocalipssi-2026-frontend<br/>React + Vite (port 3000 â†’ hÃ´te)"]
     BE["apocalipssi-2026-backend<br/>Django + DRF (port 8000)"]
     PG[("apocalipssi-2026-postgres<br/>PostgreSQL 16 (port 5432)")]
-    OL["apocalipssi-2026-ollama<br/>Ollama + Llama 3.1 8B (port 11434)"]
+    OL["apocalipssi-2026-ollama<br/>Ollama + Llama 3.2 3B (port 11434)"]
     VPG[("volume : postgres-data")]
     VOL[("volume : ollama-data")]
   end

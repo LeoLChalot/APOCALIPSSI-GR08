@@ -4,7 +4,7 @@ flowchart LR
     UI["React 18 + Vite + TS<br/>pages : auth, upload, quiz,<br/>history, dashboard, review, profile, admin"]
   end
 
-  subgraph BACK["Backend — Django + DRF"]
+  subgraph BACK["Backend â€” Django + DRF"]
     ACC["accounts<br/>auth email, Profile"]
     QZ["quizzes<br/>Quiz, Question, score"]
     LLMA["llm<br/>factory multi-fournisseurs"]
@@ -12,8 +12,8 @@ flowchart LR
   end
 
   DB[("PostgreSQL 16")]
-  OLL["Ollama<br/>Llama 3.1 8B (défaut, local)"]
-  PROV["Fournisseurs cloud<br/>Gemini / Groq / … / OpenAI"]
+  OLL["Ollama<br/>Llama 3.2 3B (dÃ©faut, local)"]
+  PROV["Fournisseurs cloud<br/>Gemini / Groq / â€¦ / OpenAI"]
   MAIL["Brevo SMTP"]
 
   UI -->|"HTTP/JSON + token"| ACC
@@ -24,6 +24,6 @@ flowchart LR
   QZ --> DB
   LLMA --> DB
   ADM --> DB
-  LLMA -->|"par défaut (local)"| OLL
-  LLMA -.->|"optionnel · via ADR"| PROV
+  LLMA -->|"par dÃ©faut (local)"| OLL
+  LLMA -.->|"optionnel Â· via ADR"| PROV
   ACC --> MAIL
