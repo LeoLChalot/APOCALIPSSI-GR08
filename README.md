@@ -81,6 +81,10 @@ open http://localhost:8000/api/docs  # Swagger UI
 
 > 💡 Prérequis : Docker + Docker Compose, ≥ 8 Go RAM dispos pour Ollama,
 > ≥ 5 Go d'espace disque pour le modèle.
+>
+> Le `docker-compose.yml` par défaut tourne sur CPU. Si vous avez une machine
+> avec GPU NVIDIA compatible, ajoutez l'override suivant au lancement :
+> `docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d`
 
 ---
 

@@ -22,40 +22,65 @@ logger = logging.getLogger(__name__)
 # modèle (Llama 8B ~8k tokens). Les gros modèles API tolèrent bien plus, mais
 # on garde une limite commune pour des coûts/latences maîtrisés.
 MAX_SOURCE_CHARS = 8000
-
-SYSTEM_PROMPT = """Tu es un assistant pédagogique francophone spécialisé en
-génération de QCM. À partir du cours fourni, tu génères exactement 10 questions
-à choix multiples pour aider un étudiant à réviser.
-
-Règles ABSOLUES :
-- Exactement 10 questions.
-- Chaque question a EXACTEMENT 4 options.
-- Une seule bonne réponse par question, indiquée par "correct_index" (0 à 3).
-- Pas de markdown, pas de balises HTML, pas d'explications hors JSON.
-- Sortie = JSON STRICT et UNIQUEMENT JSON.
-
-Format de sortie :
-{
-  "questions": [
-    {"prompt": "...", "options": ["...","...","...","..."], "correct_index": 0},
-    ... (10 entrées)
-  ]
+SUPPORTED_QUIZ_LANGUAGES = {"fr", "en"}
+OUTPUT_LANGUAGE_NAMES = {
+    "fr": "French",
+    "en": "English",
 }
+
+
+def normalize_quiz_language(lang: str | None) -> str:
+    if not lang:
+        return "fr"
+    candidate = "en" if lang.lower().startswith("en") else "fr"
+    return candidate if candidate in SUPPORTED_QUIZ_LANGUAGES else "fr"
+
+
+def build_system_prompt(lang: str = "fr") -> str:
+    language = OUTPUT_LANGUAGE_NAMES[normalize_quiz_language(lang)]
+    return f"""You are an educational assistant specialized in generating
+multiple-choice quizzes. From the provided course material, generate exactly 10
+multiple-choice questions to help a student revise.
+
+Output language: {language}. Answer exclusively in {language}. Do not mix
+languages.
+
+ABSOLUTE RULES:
+- Exactly 10 questions.
+- Each question has EXACTLY 4 options.
+- Exactly one correct answer per question, indicated by "correct_index" (0 to 3).
+- No markdown, no HTML tags, no explanations outside the JSON.
+- Output = STRICT JSON and JSON ONLY.
+
+Output format:
+{{
+  "questions": [
+    {{"prompt": "...", "options": ["...","...","...","..."], "correct_index": 0}},
+    ... (10 entries)
+  ]
+}}
 """
 
 
-def build_user_prompt(source_text: str, title: str) -> str:
+SYSTEM_PROMPT = build_system_prompt()
+
+
+def build_user_prompt(source_text: str, title: str, lang: str = "fr") -> str:
     """Construit le message utilisateur (cours + consigne finale)."""
     truncated = source_text[:MAX_SOURCE_CHARS]
+    target_lang = normalize_quiz_language(lang)
     return (
-        f"TITRE DU COURS : {title}\n\n" f"COURS :\n{truncated}\n\n" f"GÉNÈRE LE JSON MAINTENANT :"
+        f"TARGET_OUTPUT_LANGUAGE: {target_lang}\n\n"
+        f"COURSE TITLE: {title}\n\n"
+        f"COURSE CONTENT:\n{truncated}\n\n"
+        "GENERATE THE JSON NOW:"
     )
 
 
-def build_full_prompt(source_text: str, title: str) -> str:
+def build_full_prompt(source_text: str, title: str, lang: str = "fr") -> str:
     """Prompt complet (system + user) pour les API « completion » simples
     comme Ollama /api/generate qui n'ont pas de séparation system/user."""
-    return f"{SYSTEM_PROMPT}\n\n{build_user_prompt(source_text, title)}"
+    return f"{build_system_prompt(lang)}\n\n{build_user_prompt(source_text, title, lang)}"
 
 
 def parse_and_validate_quiz(raw: str) -> list[dict]:

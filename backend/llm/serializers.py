@@ -13,6 +13,7 @@ class GenerateQuizSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=200)
     pdf = serializers.FileField(required=False)
     source_text = serializers.CharField(required=False, allow_blank=True)
+    lang = serializers.ChoiceField(choices=[("fr", "Français"), ("en", "English")], required=False, default="fr")
 
     def validate(self, attrs: dict) -> dict:
         pdf = attrs.get("pdf")

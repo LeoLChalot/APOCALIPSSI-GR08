@@ -17,7 +17,7 @@ import requests
 from django.conf import settings
 
 from .base import LLMClient, LLMError
-from .quiz_prompt import SYSTEM_PROMPT, build_user_prompt, parse_and_validate_quiz
+from .quiz_prompt import build_system_prompt, build_user_prompt, parse_and_validate_quiz
 
 
 class OpenAICompatibleClient(LLMClient):
@@ -48,19 +48,19 @@ class OpenAICompatibleClient(LLMClient):
                 + "Ou utilisez LLM_BACKEND=ollama (gratuit, local) pour le développement."
             )
 
-    def generate_quiz(self, source_text: str, title: str) -> list[dict]:
-        raw = self._call(source_text, title)
+    def generate_quiz(self, source_text: str, title: str, lang: str = "fr") -> list[dict]:
+        raw = self._call(source_text, title, lang)
         return parse_and_validate_quiz(raw)
 
     # ----- internals -----
 
-    def _call(self, source_text: str, title: str) -> str:
+    def _call(self, source_text: str, title: str, lang: str) -> str:
         payload = {
             "model": self.model,
             # Séparation system / user (défense de base contre l'injection, cf. J3).
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": build_user_prompt(source_text, title)},
+                {"role": "system", "content": build_system_prompt(lang)},
+                {"role": "user", "content": build_user_prompt(source_text, title, lang)},
             ],
             "temperature": 0.4,
         }

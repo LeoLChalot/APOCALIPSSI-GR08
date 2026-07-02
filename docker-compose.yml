@@ -44,14 +44,9 @@ services:
       - ollama-data:/root/.ollama
     dns:
       - 8.8.8.8
-    # Sur GPU NVIDIA, décommenter pour accélérer :
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    # Configuration CPU-compatible par défaut.
+    # Pour activer l'accélération NVIDIA sur une machine compatible :
+    # docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
 
   backend:
     build:
